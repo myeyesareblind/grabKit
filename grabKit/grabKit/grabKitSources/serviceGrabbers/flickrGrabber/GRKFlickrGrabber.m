@@ -574,7 +574,7 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
         if (locationIndex > maxCommenetsIndex || rawComments.count == 0) {
             [self unregisterQueryAsLoading:query];
             dispatch_async(dispatch_get_main_queue(), ^{
-                completeBlock(nil);
+                completeBlock([NSArray array]);
             });
             return ;
         }
