@@ -627,8 +627,6 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
     NSNumber * offset = [NSNumber numberWithInt:(pageIndex * numberOfCommentsPerPage )];
     [params setObject:[offset stringValue] forKey:@"offset"];
     [params setObject:[NSString stringWithFormat:@"%d", numberOfCommentsPerPage] forKey:@"limit"];
-//    [params setObject:@"id,name,created_time,updated_time,images,height,width"
-//               forKey:@"fields"];
 
     __block GRKFacebookQuery* commentsQuery = nil;
     GRKQueryResultBlock queryCompleteBlock = ^(id query, id result) {

@@ -33,7 +33,7 @@
 #import "GRKComment.h"
 #import "GRKCommentsInternalProtocol.h"
 
-@interface GRKPicasaGrabber() <GRKCommentsInternalProtocol>
+@interface GRKPicasaGrabber()
 -(GRKAlbum *) albumFromGDataEntryPhotoAlbum:(GDataEntryPhotoAlbum *) entry;
 -(GRKPhoto *) photoFromGDataEntryPhoto:(GDataEntryPhoto *) entry;
 @end

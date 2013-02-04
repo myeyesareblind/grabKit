@@ -423,29 +423,69 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
         @throw exeption;
     }
     
-    NSString* endpoint = [NSString stringWithFormat:@"/media/%@/comments", photo.photoId];
+    NSString* endpoint = [NSString stringWithFormat:@"media/%@/comments", photo.photoId];
+    __block GRKInstagramQuery* allCommentsQuery = nil;
     
-    
-    GRKQueryResultBlock localQueryCompleteBlock = ^(id query, id result) {
+    GRKQueryResultBlock queryCompleteBlock = ^(id query, id result) {
+        if ( ! [self isResultForCommentsInTheExpectedFormat:result] ){
+            
+            if ( errorBlock != nil ){
+                // Create an error for "bad format result" and call the errorBlock
+                NSError * error = [self errorForBadFormatResultCommentsOperation];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    errorBlock(error);
+                });
+            }
+            
+            [self unregisterQueryAsLoading:allCommentsQuery];
+            allCommentsQuery = nil;
+            return;
+        }
+        /// no paging api provided, grab all comments and trim them
         NSArray*        rawComments     = [(NSDictionary*) result objectForKey:@"data"];
+#warning consider adding Caption to the comments as it looks like 1st comment
+        
+        NSUInteger      maxCommenetsIndex        = rawComments.count ? rawComments.count - 1: 0;
+        NSUInteger      locationIndex   = pageIndex * numberOfCommentsPerPage;
+        if (locationIndex > maxCommenetsIndex || rawComments.count == 0) {
+            [self unregisterQueryAsLoading:query];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completeBlock([NSArray array]);
+            });
+            return ;
+        }
+        
+        NSUInteger      length          = numberOfCommentsPerPage;
+        NSUInteger      maxRequestIndex = locationIndex + length;
+        NSInteger       remainingLength = maxRequestIndex > maxCommenetsIndex ?
+        rawComments.count - locationIndex:
+        length;
+        
+        
+        NSRange         commentsRange   = NSMakeRange(locationIndex,
+                                                      remainingLength);
+        NSArray*        requestedComments = [rawComments subarrayWithRange:commentsRange];
+        
         NSMutableArray* actualComments  = [NSMutableArray new];
-        for (NSDictionary* rawComment in rawComments){
+        for (NSDictionary* rawComment in requestedComments){
             GRKComment* comment = [self commentWithRawComment:rawComment];
             [actualComments addObject:comment];
         }
         [self unregisterQueryAsLoading:query];
-        completeBlock(actualComments);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completeBlock(actualComments);
+        });
     };
     
-    GRKErrorBlock localQueryErrorBlock = ^(NSError* error) {
+    GRKErrorBlock queryErrorBlock = ^(NSError* error) {
         errorBlock(error);
     };
     
-    __block GRKInstagramQuery* allCommentsQuery = nil;
+
     allCommentsQuery =     [GRKInstagramQuery queryWithEndpoint:endpoint
                                                      withParams:nil
-                                              withHandlingBlock:localQueryCompleteBlock
-                                                  andErrorBlock:localQueryErrorBlock];
+                                              withHandlingBlock:queryCompleteBlock
+                                                  andErrorBlock:queryErrorBlock];
     [self registerQueryAsLoading:allCommentsQuery];
     [allCommentsQuery perform];
 }
@@ -515,11 +555,6 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
     }
     
     return YES;
-}
-
-
--(BOOL) isResultForCommentsInTheExpectedFormat:(id)result {
-    
 }
 
 
@@ -600,11 +635,45 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
 }
 
 
+
+-(BOOL) isResultForCommentsInTheExpectedFormat:(id)result {
+    // check if the result as the expected format, calls errorBlock if not.
+    if ( ! [result isKindOfClass:[NSDictionary class]] ){
+        return NO;
+    }
+    if ( [(NSDictionary *)result objectForKey:@"data"] == nil ){
+        return NO;
+    }
+    
+    return YES;
+}
+
+/*
+ Example:
+ "data": [
+ {
+ "created_time": "1280780324",
+ "text": "Really amazing photo!",
+ "from": {
+ "username": "snoopdogg",
+ "profile_picture": "http://images.instagram.com/profiles/profile_16_75sq_1305612434.jpg",
+ "id": "1574083",
+ "full_name": "Snoop Dogg"
+ },
+ "id": "420"
+ },
+ */
 -(GRKComment*)commentWithRawComment:(NSDictionary *)rawComment {
-    /// dictionary content:
-    ///id, created_time, text, from:(username, profile_picture,id,full_name)
-//    GRKAuthor
-    NSLog(@"rawcomment:%@",rawComment);
+    NSDictionary* rawAuthor = [rawComment objectForKey:@"from"];
+    GRKAuthor* author = [[GRKAuthor alloc] initWithAuthorID:[rawAuthor objectForKey:@"id"]
+                                                    andName:[rawAuthor objectForKey:@"username"]];
+    NSString* dateString = [rawComment objectForKey:@"created_time"];
+    NSDate*   date       = [NSDate dateWithTimeIntervalSince1970:[dateString doubleValue]];
+    GRKComment* comment = [[GRKComment alloc] initWithCommentID:[rawComment objectForKey:@"id"]
+                                                        message:[rawComment objectForKey:@"text"]
+                                                    publishDate:date
+                                                  commentAuthor:author];
+    return comment;
 }
 
 @end

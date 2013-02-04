@@ -204,7 +204,9 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
 }
 
 
-
+-(void)commentsOfPhoto:(GRKPhoto *)photo withCommentsAtPageIndex:(NSUInteger)pageIndex withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock andErrorBlock:(GRKErrorBlock)errorBlock {
+    NSAssert(false, @" the object %@ doesn't mask the method [%@ %@]", self, [self class], NSStringFromSelector(_cmd));
+}
 
 
 /** As GRKServiceGrabber is the parentClass of all grabbers, this method must be subclassed.
