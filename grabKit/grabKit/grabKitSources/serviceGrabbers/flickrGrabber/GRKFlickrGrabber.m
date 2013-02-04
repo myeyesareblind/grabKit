@@ -26,10 +26,13 @@
 #import "GRKFlickrQuery.h"
 #import "GRKAlbum.h"
 #import "NSString+date.h"
+#import "GRKComment.h"
+#import "GRKAuthor.h"
+#import "GRKCommentsInternalProtocol.h"
 
 #import "GRKFlickrQueriesQueue.h"
 
-@interface GRKFlickrGrabber()
+@interface GRKFlickrGrabber()<GRKCommentsInternalProtocol>
 -(BOOL) isResultForAlbumsInTheExpectedFormat:(id)result;
 -(GRKAlbum *) albumWithRawAlbum:(NSDictionary*)rawAlbum;
 
@@ -527,10 +530,94 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
     [self fillCoverPhotoOfAlbums:[NSArray arrayWithObject:album] 
                 withCompleteBlock:completeBlock 
                    andErrorBlock:errorBlock];
-        
 }
 
 
+-(void) commentsOfPhoto:(GRKPhoto *)photo
+withCommentsAtPageIndex:(NSUInteger)pageIndex
+withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
+       andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock
+          andErrorBlock:(GRKErrorBlock)errorBlock {
+    
+    if (numberOfCommentsPerPage > kGRKMaximumNumberOfCommentsPerPage) {
+        NSException* exeption = [NSException exceptionWithName:@"numberOfCommentsPerPageTooHigh"
+                                                        reason:[NSString stringWithFormat:@"The number of comments per page you asked (%d) exceeds maximum possible", numberOfCommentsPerPage]
+                                                      userInfo:nil];
+        @throw exeption;
+    }
+    
+    ///photo_id
+    NSString* endpoint = @"flickr.photos.comments.getList";
+    
+    
+    GRKQueryResultBlock queryCompleteBlock = ^(id query, id result) {
+        
+        if ( ! [self isResultForCommentsInTheExpectedFormat:result]){
+            if ( errorBlock != nil ){
+                
+                // Create an error for "bad format result" and call the errorBlock
+                NSError * error = [self errorForBadFormatResultCommentsOperation];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    errorBlock(error);
+                });
+                [self unregisterQueryAsLoading:query];
+                return ;
+            }
+        }
+        
+        /// flickr doesnt provide page options, retrieve all and trim results
+        NSDictionary* comments     = [(NSDictionary*) result objectForKey:@"comments"];
+        NSArray*      rawComments  = [comments objectForKey:@"comment"];
+        
+        NSUInteger      maxCommenetsIndex        = rawComments.count ? rawComments.count - 1: 0;
+        NSUInteger      locationIndex   = pageIndex * numberOfCommentsPerPage;
+        if (locationIndex > maxCommenetsIndex || rawComments.count == 0) {
+            [self unregisterQueryAsLoading:query];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completeBlock(nil);
+            });
+            return ;
+        }
+        
+        NSUInteger      length          = numberOfCommentsPerPage;
+        NSUInteger      maxRequestIndex = locationIndex + length;
+        NSInteger       remainingLength = maxRequestIndex > maxCommenetsIndex ?
+        rawComments.count - locationIndex:
+        length;
+        
+        
+        NSRange         commentsRange   = NSMakeRange(locationIndex,
+                                                      remainingLength);
+        NSArray*        requestedComments = [rawComments subarrayWithRange:commentsRange];
+        
+        NSMutableArray* actualComments  = [NSMutableArray new];
+        for (NSDictionary* rawComment in requestedComments){
+            GRKComment* comment = [self commentWithRawComment:rawComment];
+            [actualComments addObject:comment];
+        }
+        [self unregisterQueryAsLoading:query];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completeBlock(actualComments);
+        });
+    };
+
+    GRKErrorBlock queryErrorBlock = ^(NSError* error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            errorBlock(error);
+        });
+    };
+    
+    __block GRKFlickrQuery* allCommentsQuery = nil;
+    allCommentsQuery = [GRKFlickrQuery queryWithMethod:endpoint
+                                             andParams:[@{
+                                                        @"photo_id":photo.photoId
+                                                        } mutableCopy]
+                                     withHandlingBlock:queryCompleteBlock
+                                         andErrorBlock:queryErrorBlock];
+    
+    [self registerQueryAsLoading:allCommentsQuery];
+    [allCommentsQuery perform];
+}
 
 
 /* @see refer to GRKServiceGrabberProtocol documentation
@@ -647,8 +734,6 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
      */ 
     return YES;
 }
-
-
 
 
 /** Build and return a GRKPhoto from the given dictionary.
@@ -802,4 +887,43 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
 
 
 
+-(BOOL) isResultForCommentsInTheExpectedFormat:(id)result {
+    // check if the result as the expected format, calls errorBlock if not.
+    if ( ! [result isKindOfClass:[NSDictionary class]] ){
+        return NO;
+    }
+    if ( [(NSDictionary *)result objectForKey:@"comments"] == nil ){
+        return NO;
+    }
+    return YES;
+}
+
+/*
+Example Response
+ (NSDictionary *) $1 = 0x0a4bb8d0 {
+ "_text" = "i want back this monitor...";
+ author = "92257367@N05";
+ authorname = myeyesareblind;
+ datecreate = 1359984626;
+ iconfarm = 9;
+ iconserver = 8327;
+ id = "92252027-8386365207-72157632687954512";
+ permalink = "http://www.flickr.com/photos/92257367@N05/8386365207/#comment72157632687954512";
+ }
+*/
+
+-(GRKComment*)commentWithRawComment:(NSDictionary *)rawComment {
+    
+    GRKAuthor* commentAuthor = [[GRKAuthor alloc] initWithAuthorID:[rawComment objectForKey:@"author"]
+                                                           andName:[rawComment objectForKey:@"authorname"]];
+    
+    NSString* dateCreateString = [rawComment objectForKey:@"datecreate"];
+    NSDate*   dateCreate       = [NSDate dateWithTimeIntervalSince1970:[dateCreateString doubleValue]];
+    
+    GRKComment* comment = [[GRKComment alloc] initWithCommentID:[rawComment objectForKey:@"id"]
+                                                        message:[rawComment objectForKey:@"_text"]
+                                                    publishDate:dateCreate
+                                                  commentAuthor:commentAuthor];
+    return comment;
+}
 @end

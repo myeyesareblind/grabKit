@@ -38,6 +38,8 @@
 #import "GRKAlbum.h"
 #import "GRKImage.h"
 #import "GRKPhoto.h"
+#import "GRKComment.h"
+#import "GRKAuthor.h"
 
 
 // Connection

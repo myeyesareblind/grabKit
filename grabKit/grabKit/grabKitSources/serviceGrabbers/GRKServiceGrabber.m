@@ -140,6 +140,16 @@
     
 }
 
+-(NSError *)errorForBadFormatResultCommentsOperation {
+    NSString * errorDomain = [NSString stringWithFormat:@"com.grabKit.%@.comments", _serviceName];
+    NSDictionary * userInfo = [NSDictionary dictionaryWithObject:kGRKBadFormatResultErrorLocalizedDescription
+                                                          forKey:NSLocalizedDescriptionKey];
+    NSError * error = [NSError errorWithDomain:errorDomain
+                                          code:kGRKBadFormatResultErrorCode
+                                      userInfo:userInfo];
+    return error;
+}
+
 #pragma mark - GRKServiceGrabberProtocol methods. 
 
 /* /!\ ALL the following methods MUST be overriden by the subclassing objects */
@@ -214,6 +224,4 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
 
     NSAssert(false, @" the object %@ doesn't mask the method [%@ cancelAllWithCompleteBlock:]", self, [self class]);
 }
-
-
 @end

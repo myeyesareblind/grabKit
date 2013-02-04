@@ -26,16 +26,22 @@
 #import "GRKInstagramQuery.h"
 #import "GRKAlbum.h"
 #import "GRKConstants.h"
+#import "GRKComment.h"
+#import "GRKAuthor.h"
+#import "GRKCommentsInternalProtocol.h"
 
-@interface GRKInstagramGrabber()
+@interface GRKInstagramGrabber()<GRKCommentsInternalProtocol>
+
 -(BOOL) isResultForAlbumsInTheExpectedFormat:(id)result;
 
 -(BOOL) isResultForPhotosInTheExpectedFormat:(id)result;
+
 -(GRKPhoto *) photoWithRawPhoto:(NSDictionary*)rawPhoto;
 
 -(GRKImage *) imageWithRawImage:(NSDictionary*)rawImage isOriginal:(BOOL)isOriginal;
 
 -(void)resetAndRebuildConnector;
+
 @end
 
 
@@ -312,7 +318,7 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
                                       @autoreleasepool {
                                           GRKPhoto * photo = [self photoWithRawPhoto:rawPhoto];
                                           [newPhotos addObject:photo];
-                                      } 
+                                      }
                                   }
                                   
                                   [album addPhotos:newPhotos forPageIndex:pageIndex withNumberOfPhotosPerPage:numberOfPhotosPerPage];
@@ -391,7 +397,6 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
         
     }
     
-    
 }
 
 
@@ -402,6 +407,47 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
     
     instagramConnector = [[GRKInstagramConnector alloc] initWithGrabberType:_serviceName];
     
+}
+
+
+-(void) commentsOfPhoto:(GRKPhoto *)photo
+withCommentsAtPageIndex:(NSUInteger)pageIndex
+withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
+      andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock
+         andErrorBlock:(GRKErrorBlock)errorBlock {
+    
+    if (numberOfCommentsPerPage > kGRKMaximumNumberOfCommentsPerPage) {
+        NSException* exeption = [NSException exceptionWithName:@"numberOfCommentsPerPageTooHigh"
+                                                        reason:[NSString stringWithFormat:@"The number of comments per page you asked (%d) exceeds maximum possible", numberOfCommentsPerPage]
+                                                      userInfo:nil];
+        @throw exeption;
+    }
+    
+    NSString* endpoint = [NSString stringWithFormat:@"/media/%@/comments", photo.photoId];
+    
+    
+    GRKQueryResultBlock localQueryCompleteBlock = ^(id query, id result) {
+        NSArray*        rawComments     = [(NSDictionary*) result objectForKey:@"data"];
+        NSMutableArray* actualComments  = [NSMutableArray new];
+        for (NSDictionary* rawComment in rawComments){
+            GRKComment* comment = [self commentWithRawComment:rawComment];
+            [actualComments addObject:comment];
+        }
+        [self unregisterQueryAsLoading:query];
+        completeBlock(actualComments);
+    };
+    
+    GRKErrorBlock localQueryErrorBlock = ^(NSError* error) {
+        errorBlock(error);
+    };
+    
+    __block GRKInstagramQuery* allCommentsQuery = nil;
+    allCommentsQuery =     [GRKInstagramQuery queryWithEndpoint:endpoint
+                                                     withParams:nil
+                                              withHandlingBlock:localQueryCompleteBlock
+                                                  andErrorBlock:localQueryErrorBlock];
+    [self registerQueryAsLoading:allCommentsQuery];
+    [allCommentsQuery perform];
 }
 
 
@@ -469,6 +515,11 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
     }
     
     return YES;
+}
+
+
+-(BOOL) isResultForCommentsInTheExpectedFormat:(id)result {
+    
 }
 
 
@@ -549,6 +600,11 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
 }
 
 
-
+-(GRKComment*)commentWithRawComment:(NSDictionary *)rawComment {
+    /// dictionary content:
+    ///id, created_time, text, from:(username, profile_picture,id,full_name)
+//    GRKAuthor
+    NSLog(@"rawcomment:%@",rawComment);
+}
 
 @end

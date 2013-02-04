@@ -29,9 +29,12 @@
 #import "GRKAlbum.h"
 #import "ISO8601DateFormatter.h"
 #import "GRKConstants.h"
+#import "GRKComment.h"
+#import "GRKCommentsInternalProtocol.h"
 
 
-@interface GRKFacebookGrabber()
+@interface GRKFacebookGrabber() <GRKCommentsInternalProtocol>
+
 -(BOOL) isResultForAlbumsInTheExpectedFormat:(id)result;
 -(GRKAlbum *) albumWithRawAlbum:(NSDictionary*)rawAlbum;
 
@@ -587,6 +590,39 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
                    andErrorBlock:errorBlock];
 }
 
+
+
+-(void) commentsOfPhoto:(GRKPhoto *)photo
+withCommentsAtPageIndex:(NSUInteger)pageIndex
+withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
+       andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock
+          andErrorBlock:(GRKErrorBlock)errorBlock {
+    
+    if (numberOfCommentsPerPage > kGRKMaximumNumberOfCommentsPerPage) {
+        NSException* exception = [NSException
+                                  exceptionWithName:@"numberOfAlbumsPerPageTooHigh"
+                                  reason:[NSString stringWithFormat:@"The number of comments per page you asked (%d) is too high",numberOfCommentsPerPage]
+                                  userInfo:nil];
+        @throw exception;
+    }
+
+GRKQueryResultBlock resultBlock = ^(id query, id result) {
+    NSLog(@"result: %@", result);
+    [self unregisterQueryAsLoading:query];
+};
+    
+    __block GRKFacebookQuery* commentsQuery = nil;
+    commentsQuery = [GRKFacebookQuery queryWithGraphPath:[NSString stringWithFormat:@"%@/comments", photo.photoId]
+                                              withParams:nil
+                                       withHandlingBlock:resultBlock
+                                           andErrorBlock:^(NSError* error){
+                                               errorBlock(error);
+                                               [self unregisterQueryAsLoading:commentsQuery];
+                                               commentsQuery = nil;
+                                           }];
+    [self registerQueryAsLoading:commentsQuery];
+    [commentsQuery perform];
+}
 
 /* @see refer to GRKServiceGrabberProtocol documentation
  */

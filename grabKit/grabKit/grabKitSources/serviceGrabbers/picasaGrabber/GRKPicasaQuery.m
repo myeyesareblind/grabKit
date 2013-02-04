@@ -48,10 +48,15 @@
         //Build proper URL with params here
         NSString * paramsString = [params URLEncodedString];
         
-        NSString * feedLinkWithParams = nil;
-        if ( ((NSRange)[[_feedURL absoluteString] rangeOfString:@"?"]).location == NSNotFound ){
-            feedLinkWithParams = [NSString stringWithFormat:@"%@?%@",[_feedURL absoluteString], paramsString];
-        } else feedLinkWithParams = [NSString stringWithFormat:@"%@&%@",[_feedURL absoluteString], paramsString];
+        NSString * feedLinkWithParams = _feedURL.absoluteString;
+        if (_params.count) {
+            if ( ((NSRange)[[_feedURL absoluteString] rangeOfString:@"?"]).location == NSNotFound ){
+                feedLinkWithParams = [NSString stringWithFormat:@"%@?%@",[_feedURL absoluteString], paramsString];
+            }
+            else {
+                feedLinkWithParams = [NSString stringWithFormat:@"%@&%@",[_feedURL absoluteString], paramsString];
+            }
+        }
         
         
         feedURL = [NSURL URLWithString:feedLinkWithParams];

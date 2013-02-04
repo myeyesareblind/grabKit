@@ -15,6 +15,6 @@ profile
 *.moved-aside
 
 .DS_Store
-
+grabKit/grabKit/submodules/Picasa/
 libs/Picasa/Photos/.svn/entries
 build/

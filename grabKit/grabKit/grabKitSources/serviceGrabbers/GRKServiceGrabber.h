@@ -127,6 +127,9 @@ GRKServiceGrabber conforms to GRKServiceGrabberProtocol, but all the methods mus
  */
 -(NSError *)errorForBadFormatResultForFillAlbumOperationWithOriginalAlbum:(GRKAlbum*)originalAlbum andOriginalError:(NSError *) originalError;
 
+
+-(NSError *)errorForBadFormatResultCommentsOperation;
+
 @end
 
 

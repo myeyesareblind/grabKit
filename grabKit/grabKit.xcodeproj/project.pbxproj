@@ -7,6 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		25195AA216B964650044D0A2 /* GRKCommentsInternalProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 25195AA016B963F80044D0A2 /* GRKCommentsInternalProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		25195AA916B967310044D0A2 /* FacebookSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25195AA816B967310044D0A2 /* FacebookSDK.framework */; };
+		25195AAE16B9673F0044D0A2 /* FacebookSDKResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 25195AAB16B9673F0044D0A2 /* FacebookSDKResources.bundle */; };
+		25195AAF16B9673F0044D0A2 /* FBUserSettingsViewResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 25195AAC16B9673F0044D0A2 /* FBUserSettingsViewResources.bundle */; };
+		25195AB616B969040044D0A2 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 25195AB516B969040044D0A2 /* Default-568h@2x.png */; };
+		255805B416B7E35100DA3C5E /* GRKAuthor.m in Sources */ = {isa = PBXBuildFile; fileRef = 255805B316B7E35100DA3C5E /* GRKAuthor.m */; };
+		255805B916B7E36500DA3C5E /* GRKAuthor.h in Headers */ = {isa = PBXBuildFile; fileRef = 255805B616B7E36400DA3C5E /* GRKAuthor.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		255805BA16B7E36500DA3C5E /* GRKComment.h in Headers */ = {isa = PBXBuildFile; fileRef = 255805B716B7E36400DA3C5E /* GRKComment.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		255805BB16B7E36500DA3C5E /* GRKComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 255805B816B7E36500DA3C5E /* GRKComment.m */; };
+		25F0AB7716BFF3DA002A1800 /* GRKComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 255805B816B7E36500DA3C5E /* GRKComment.m */; };
+		25F0AB7816BFF3E1002A1800 /* GRKAuthor.m in Sources */ = {isa = PBXBuildFile; fileRef = 255805B316B7E35100DA3C5E /* GRKAuthor.m */; };
 		5F0167AE15D2D796003C3C1C /* GRKDemoAlbumsListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F0167AD15D2D796003C3C1C /* GRKDemoAlbumsListCell.m */; };
 		5F0167B115D2D825003C3C1C /* GRKDemoAlbumsListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5F0167B015D2D825003C3C1C /* GRKDemoAlbumsListCell.xib */; };
 		5F0167B415D9732A003C3C1C /* GRKFlickrQueriesQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 5F0167B215D97329003C3C1C /* GRKFlickrQueriesQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -482,6 +493,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		25195AA016B963F80044D0A2 /* GRKCommentsInternalProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRKCommentsInternalProtocol.h; sourceTree = "<group>"; };
+		25195AA816B967310044D0A2 /* FacebookSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FacebookSDK.framework; path = ../../../../FacebookSDK/FacebookSDK.framework; sourceTree = "<group>"; };
+		25195AAB16B9673F0044D0A2 /* FacebookSDKResources.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = FacebookSDKResources.bundle; sourceTree = "<group>"; };
+		25195AAC16B9673F0044D0A2 /* FBUserSettingsViewResources.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = FBUserSettingsViewResources.bundle; sourceTree = "<group>"; };
+		25195AB516B969040044D0A2 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		255805B316B7E35100DA3C5E /* GRKAuthor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRKAuthor.m; sourceTree = "<group>"; };
+		255805B616B7E36400DA3C5E /* GRKAuthor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRKAuthor.h; sourceTree = "<group>"; };
+		255805B716B7E36400DA3C5E /* GRKComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRKComment.h; sourceTree = "<group>"; };
+		255805B816B7E36500DA3C5E /* GRKComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRKComment.m; sourceTree = "<group>"; };
 		5F0167AC15D2D796003C3C1C /* GRKDemoAlbumsListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRKDemoAlbumsListCell.h; sourceTree = "<group>"; };
 		5F0167AD15D2D796003C3C1C /* GRKDemoAlbumsListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRKDemoAlbumsListCell.m; sourceTree = "<group>"; };
 		5F0167B015D2D825003C3C1C /* GRKDemoAlbumsListCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GRKDemoAlbumsListCell.xib; sourceTree = "<group>"; };
@@ -846,6 +866,7 @@
 				5F3C2B4F15B9F7FC008D894A /* UIKit.framework in Frameworks */,
 				5F3C2B5115B9F7FC008D894A /* Foundation.framework in Frameworks */,
 				5F3C2B5315B9F7FC008D894A /* CoreGraphics.framework in Frameworks */,
+				25195AA916B967310044D0A2 /* FacebookSDK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -877,9 +898,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		25195AAA16B9673F0044D0A2 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				25195AAB16B9673F0044D0A2 /* FacebookSDKResources.bundle */,
+				25195AAC16B9673F0044D0A2 /* FBUserSettingsViewResources.bundle */,
+			);
+			name = Resources;
+			path = ../../../../FacebookSDK/FacebookSDK.framework/Versions/A/Resources;
+			sourceTree = "<group>";
+		};
 		5F3C2B3F15B9F7FC008D894A = {
 			isa = PBXGroup;
 			children = (
+				25195AB516B969040044D0A2 /* Default-568h@2x.png */,
 				5F3C2B5415B9F7FC008D894A /* grabKit */,
 				5F3C2B6C15B9F7FC008D894A /* grabKitTests */,
 				5F3C2B4D15B9F7FC008D894A /* Frameworks */,
@@ -901,6 +933,8 @@
 		5F3C2B4D15B9F7FC008D894A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				25195AAA16B9673F0044D0A2 /* Resources */,
+				25195AA816B967310044D0A2 /* FacebookSDK.framework */,
 				5F8E24A816A7F8660090F93B /* Accounts.framework */,
 				5F8E24A916A7F8660090F93B /* AdSupport.framework */,
 				5F3C2E3115BA06E3008D894A /* AssetsLibrary.framework */,
@@ -1048,6 +1082,10 @@
 		5F3C2CC615B9F945008D894A /* model */ = {
 			isa = PBXGroup;
 			children = (
+				255805B616B7E36400DA3C5E /* GRKAuthor.h */,
+				255805B716B7E36400DA3C5E /* GRKComment.h */,
+				255805B816B7E36500DA3C5E /* GRKComment.m */,
+				255805B316B7E35100DA3C5E /* GRKAuthor.m */,
 				5F3C2CC715B9F945008D894A /* GRKAlbum.h */,
 				5F3C2CC815B9F945008D894A /* GRKAlbum.m */,
 				5F3C2CC915B9F945008D894A /* GRKImage.h */,
@@ -1160,6 +1198,7 @@
 				5F3C2D0715B9F945008D894A /* GRKServiceGrabberConnectionProtocol.h */,
 				5F3C2D0815B9F945008D894A /* GRKServiceGrabberProtocol.h */,
 				5F3C2D0915B9F945008D894A /* GRKServiceQueryProtocol.h */,
+				25195AA016B963F80044D0A2 /* GRKCommentsInternalProtocol.h */,
 			);
 			path = protocols;
 			sourceTree = "<group>";
@@ -1716,6 +1755,9 @@
 				5FC65D5716ADB4A900FCA059 /* GDataPhotos.h in Headers */,
 				5FC65D5816ADB4A900FCA059 /* GDataQueryGooglePhotos.h in Headers */,
 				5FC65D5B16ADB4A900FCA059 /* GDataServiceGooglePhotos.h in Headers */,
+				255805B916B7E36500DA3C5E /* GRKAuthor.h in Headers */,
+				255805BA16B7E36500DA3C5E /* GRKComment.h in Headers */,
+				25195AA216B964650044D0A2 /* GRKCommentsInternalProtocol.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1840,6 +1882,9 @@
 				5F89BAFC15C85D990098F1D7 /* thumbnail_placeholder@2X.png in Resources */,
 				5F0167B115D2D825003C3C1C /* GRKDemoAlbumsListCell.xib in Resources */,
 				5FB1371816ADAD2800BE500B /* GTMOAuth2ViewTouch.xib in Resources */,
+				25195AAE16B9673F0044D0A2 /* FacebookSDKResources.bundle in Resources */,
+				25195AAF16B9673F0044D0A2 /* FBUserSettingsViewResources.bundle in Resources */,
+				25195AB616B969040044D0A2 /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2040,6 +2085,8 @@
 				5FC65D5916ADB4A900FCA059 /* GDataQueryGooglePhotos.m in Sources */,
 				5FB1371416ADAD2800BE500B /* GTMOAuth2SignIn.m in Sources */,
 				5FC65D5C16ADB4A900FCA059 /* GDataServiceGooglePhotos.m in Sources */,
+				25F0AB7716BFF3DA002A1800 /* GRKComment.m in Sources */,
+				25F0AB7816BFF3E1002A1800 /* GRKAuthor.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2200,6 +2247,8 @@
 				5FC65D5A16ADB4A900FCA059 /* GDataQueryGooglePhotos.m in Sources */,
 				5FC65D5D16ADB4A900FCA059 /* GDataServiceGooglePhotos.m in Sources */,
 				5FC65D5E16ADB59B00FCA059 /* GTMOAuth2SignIn.m in Sources */,
+				255805B416B7E35100DA3C5E /* GRKAuthor.m in Sources */,
+				255805BB16B7E36500DA3C5E /* GRKComment.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2254,6 +2303,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -2273,6 +2323,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2283,7 +2334,10 @@
 		5F3C2B7815B9F7FC008D894A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../../FacebookSDK\"",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "grabKit/grabKitDemo-Prefix.pch";
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
@@ -2301,7 +2355,10 @@
 		5F3C2B7915B9F7FC008D894A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../../FacebookSDK\"",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "grabKit/grabKitDemo-Prefix.pch";
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;

@@ -30,8 +30,10 @@
 
 #import "GDataServiceGooglePhotos.h"
 #import "GDataBaseElements.h"
+#import "GRKComment.h"
+#import "GRKCommentsInternalProtocol.h"
 
-@interface GRKPicasaGrabber()
+@interface GRKPicasaGrabber() <GRKCommentsInternalProtocol>
 -(GRKAlbum *) albumFromGDataEntryPhotoAlbum:(GDataEntryPhotoAlbum *) entry;
 -(GRKPhoto *) photoFromGDataEntryPhoto:(GDataEntryPhoto *) entry;
 @end
@@ -413,6 +415,42 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
                 withCompleteBlock:completeBlock 
                    andErrorBlock:errorBlock];
     
+}
+
+-(void) commentsOfPhoto:(GRKPhoto *)photo
+withCommentsAtPageIndex:(NSUInteger)pageIndex
+withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
+       andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock
+          andErrorBlock:(GRKErrorBlock)errorBlock {
+    
+    if (numberOfCommentsPerPage > kGRKMaximumNumberOfCommentsPerPage) {
+        NSException* exeption = [NSException exceptionWithName:@"numberOfCommentsPerPageTooHigh"
+                                                        reason:[NSString stringWithFormat:@"The number of comments per page you asked (%d) exceeds maximum possible", numberOfCommentsPerPage]
+                                                      userInfo:nil];
+        @throw exeption;
+    }
+    
+    NSString * userId = [GRKPicasaSingleton sharedInstance].userEmailAdress;
+    NSURL* commentsFeedURL = [GDataServiceGooglePhotos photoFeedURLForUserID:userId
+                                                                     albumID:nil//@"5747564028800324401"
+                                                                   albumName:nil
+                                                                     photoID:photo.photoId
+                                                                        kind:@"comment"
+                                                                      access:@"all"];
+    
+    __block GRKPicasaQuery* commentsQuery = nil;
+    
+    commentsQuery = [GRKPicasaQuery queryWithFeedURL:commentsFeedURL
+                                           andParams:nil
+                                   withHandlingBlock:^(id query, id result){
+                                       NSLog(@"query result : %@", result);
+                                       [self unregisterQueryAsLoading:commentsQuery];
+                                   }
+                                       andErrorBlock:^(NSError* error){
+                                           NSLog(@"erorr while retrieving comments: %@", error);
+                                       }];
+    [self registerQueryAsLoading:commentsQuery];
+    [commentsQuery perform];
 }
 
 

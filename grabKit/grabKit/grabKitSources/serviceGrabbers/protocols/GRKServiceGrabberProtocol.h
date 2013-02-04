@@ -27,6 +27,7 @@
 // do NOT change these constants
 #define kGRKMaximumNumberOfAlbumsPerPage 500
 #define kGRKMaximumNumberOfPhotosPerPage 500
+#define kGRKMaximumNumberOfCommentsPerPage 500
 
 // Block passed to a grabber and performed after a successful operation.
 typedef void (^GRKServiceGrabberCompleteBlock)(id result);
@@ -197,6 +198,14 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
 -(void) fillCoverPhotoOfAlbum:(GRKAlbum *)album 
              andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock 
                 andErrorBlock:(GRKErrorBlock)errorBlock;
+
+
+
+-(void) commentsOfPhoto:(GRKPhoto*)photo
+withCommentsAtPageIndex:(NSUInteger)pageIndex
+withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
+       andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock
+          andErrorBlock:(GRKErrorBlock)errorBlock;
 
 
 /** @name Manage the loading queries */

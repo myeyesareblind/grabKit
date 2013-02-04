@@ -205,6 +205,20 @@ NSUInteger kNumberOfPhotosPerPage = 7 * 4;
         }
     }
     
+    for (GRKPhoto* photoIterate in photosAtIndexPath) {
+        if ([_grabber respondsToSelector:@selector(commentsOfPhoto:withCommentsAtPageIndex:withNumberOfCommentsPerPage:andCompleteBlock:andErrorBlock:)]) {
+        [_grabber commentsOfPhoto:photoIterate
+          withCommentsAtPageIndex:0
+      withNumberOfCommentsPerPage:500
+                 andCompleteBlock:^(id result){
+                     NSLog(@"result %@", result);
+                 }
+                    andErrorBlock:^(NSError* error){
+                        NSLog(@"error: %@", error);
+                    }];
+        }
+    }
+    
     return [NSArray arrayWithArray:photosAtIndexPath];
     
 }
@@ -271,7 +285,7 @@ withNumberOfPhotosPerPage:kNumberOfPhotosPerPage
         NSUInteger photosCount = [_album count];
         
         // Number of cells with kNumberOfPhotosPerCell photos 
-        NSUInteger numberOfCompleteCell = (photosCount - section*kNumberOfRowsPerSection*kNumberOfPhotosPerCell) / kNumberOfPhotosPerCell;
+        NSUInteger numberOfCompleteCell = photosCount / kNumberOfPhotosPerCell;// (photosCount - section*kNumberOfRowsPerSection*kNumberOfPhotosPerCell) / kNumberOfPhotosPerCell;
         
         // The last cell can contain less than kNumberOfPhotosPerCell photos
         NSUInteger thereIsALastCellWithLessThenFourPhotos = (photosCount % kNumberOfPhotosPerCell)?1:0;
