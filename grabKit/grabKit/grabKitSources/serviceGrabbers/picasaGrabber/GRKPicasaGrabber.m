@@ -423,13 +423,16 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
        andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock
           andErrorBlock:(GRKErrorBlock)errorBlock {
     
+    NSAssert(0, @"Picasa comments grab is not implemented");
+    
     if (numberOfCommentsPerPage > kGRKMaximumNumberOfCommentsPerPage) {
         NSException* exeption = [NSException exceptionWithName:@"numberOfCommentsPerPageTooHigh"
                                                         reason:[NSString stringWithFormat:@"The number of comments per page you asked (%d) exceeds maximum possible", numberOfCommentsPerPage]
                                                       userInfo:nil];
         @throw exeption;
     }
-    
+
+    /*
     NSString * userId = [GRKPicasaSingleton sharedInstance].userEmailAdress;
     NSURL* commentsFeedURL = [GDataServiceGooglePhotos photoFeedURLForUserID:userId
                                                                      albumID:nil//@"5747564028800324401"
@@ -437,20 +440,10 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
                                                                      photoID:photo.photoId
                                                                         kind:@"comment"
                                                                       access:@"all"];
-    
-    __block GRKPicasaQuery* commentsQuery = nil;
-    
-    commentsQuery = [GRKPicasaQuery queryWithFeedURL:commentsFeedURL
-                                           andParams:nil
-                                   withHandlingBlock:^(id query, id result){
-                                       NSLog(@"query result : %@", result);
-                                       [self unregisterQueryAsLoading:commentsQuery];
-                                   }
-                                       andErrorBlock:^(NSError* error){
-                                           NSLog(@"erorr while retrieving comments: %@", error);
-                                       }];
-    [self registerQueryAsLoading:commentsQuery];
-    [commentsQuery perform];
+     This feed does work as expected, returns all the required field.
+     Unfortunately, there is no GDataComment or some sort of that, the comments are not parsed.
+     One would need to patch GData to add new model types and parsing.
+     */
 }
 
 

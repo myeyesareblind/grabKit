@@ -208,8 +208,8 @@ NSUInteger kNumberOfPhotosPerPage = 7 * 4;
     for (GRKPhoto* photoIterate in photosAtIndexPath) {
         if ([_grabber respondsToSelector:@selector(commentsOfPhoto:withCommentsAtPageIndex:withNumberOfCommentsPerPage:andCompleteBlock:andErrorBlock:)]) {
         [_grabber commentsOfPhoto:photoIterate
-          withCommentsAtPageIndex:3
-      withNumberOfCommentsPerPage:4
+          withCommentsAtPageIndex:0
+      withNumberOfCommentsPerPage:500
                  andCompleteBlock:^(id result){
                      NSLog(@"result %@", result);
                  }

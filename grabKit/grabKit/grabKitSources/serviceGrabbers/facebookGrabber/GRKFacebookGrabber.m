@@ -31,9 +31,15 @@
 #import "GRKConstants.h"
 #import "GRKComment.h"
 #import "GRKCommentsInternalProtocol.h"
+#import "GRKAuthor.h"
+#import "GRKComment.h"
 
 
-@interface GRKFacebookGrabber() <GRKCommentsInternalProtocol>
+@interface GRKFacebookGrabber() <GRKCommentsInternalProtocol> {
+    ISO8601DateFormatter* _dateFormatter;
+}
+
+@property (nonatomic, readonly) ISO8601DateFormatter* dateFormatter;
 
 -(BOOL) isResultForAlbumsInTheExpectedFormat:(id)result;
 -(GRKAlbum *) albumWithRawAlbum:(NSDictionary*)rawAlbum;
@@ -59,6 +65,15 @@
     
     return self;
 }
+
+
+-(ISO8601DateFormatter*)dateFormatter {
+    if (! _dateFormatter) {
+        _dateFormatter = [[ISO8601DateFormatter alloc] init];
+    }
+    return _dateFormatter;
+}
+
 
 #pragma mark - GRKServiceGrabberConnectionProtocol methods
 
@@ -605,21 +620,61 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
                                   userInfo:nil];
         @throw exception;
     }
-
-GRKQueryResultBlock resultBlock = ^(id query, id result) {
-    NSLog(@"result: %@", result);
-    [self unregisterQueryAsLoading:query];
-};
     
+    
+    NSMutableDictionary * params = [NSMutableDictionary  dictionary];
+    
+    NSNumber * offset = [NSNumber numberWithInt:(pageIndex * numberOfCommentsPerPage )];
+    [params setObject:[offset stringValue] forKey:@"offset"];
+    [params setObject:[NSString stringWithFormat:@"%d", numberOfCommentsPerPage] forKey:@"limit"];
+//    [params setObject:@"id,name,created_time,updated_time,images,height,width"
+//               forKey:@"fields"];
+
     __block GRKFacebookQuery* commentsQuery = nil;
+    GRKQueryResultBlock queryCompleteBlock = ^(id query, id result) {
+        if ( ! [self isResultForCommentsInTheExpectedFormat:result] ){
+            if ( errorBlock != nil ){
+                // Create an error for "bad format result" and call the errorBlock
+                NSError * error = [self errorForBadFormatResultCommentsOperation];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    errorBlock(error);
+                });
+            }
+            
+            [self unregisterQueryAsLoading:commentsQuery];
+            commentsQuery = nil;
+            return;
+        }
+        
+        NSArray * rawComments = [(NSDictionary *)result objectForKey:@"data"];
+        
+        NSMutableArray * newComments = [NSMutableArray array];
+        for (NSDictionary* rawComment in rawComments) {
+            GRKComment* comment = [self commentWithRawComment:rawComment];
+            [newComments addObject:comment];
+        }
+        
+        // pass the new photos to the completeBlock
+        if ( completeBlock != nil ){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completeBlock(newComments);
+            });
+        }
+        
+        [self unregisterQueryAsLoading:query];
+        commentsQuery = nil;
+    };
+    
+    GRKErrorBlock queryErrorBlock = ^(NSError* erro){
+        [self unregisterQueryAsLoading:commentsQuery];
+        commentsQuery = nil;
+    };
+    
+    
     commentsQuery = [GRKFacebookQuery queryWithGraphPath:[NSString stringWithFormat:@"%@/comments", photo.photoId]
-                                              withParams:nil
-                                       withHandlingBlock:resultBlock
-                                           andErrorBlock:^(NSError* error){
-                                               errorBlock(error);
-                                               [self unregisterQueryAsLoading:commentsQuery];
-                                               commentsQuery = nil;
-                                           }];
+                                              withParams:params
+                                       withHandlingBlock:queryCompleteBlock
+                                           andErrorBlock:queryErrorBlock];
     [self registerQueryAsLoading:commentsQuery];
     [commentsQuery perform];
 }
@@ -694,9 +749,8 @@ GRKQueryResultBlock resultBlock = ^(id query, id result) {
     NSString * dateUpdatedDatetimeISO8601String = [rawAlbum objectForKey:@"updated_time"];
     
     // convert the string dates to NSDate
-    ISO8601DateFormatter *formatter = [[ISO8601DateFormatter alloc] init];
-    NSDate * dateCreated = [formatter dateFromString:dateCreatedDatetimeISO8601String];
-    NSDate * dateUpdated = [formatter dateFromString:dateUpdatedDatetimeISO8601String];
+    NSDate * dateCreated = [self.dateFormatter dateFromString:dateCreatedDatetimeISO8601String];
+    NSDate * dateUpdated = [self.dateFormatter dateFromString:dateUpdatedDatetimeISO8601String];
 
     
     NSMutableDictionary * dates = [NSMutableDictionary dictionary];
@@ -744,7 +798,7 @@ GRKQueryResultBlock resultBlock = ^(id query, id result) {
     NSString * photoCaption = [rawPhoto objectForKey:@"name"]  ;
     
     NSMutableDictionary * dates = [NSMutableDictionary dictionary];
-    ISO8601DateFormatter *formatter = [[ISO8601DateFormatter alloc] init];
+    ISO8601DateFormatter *formatter = self.dateFormatter;
     
     if ( [rawPhoto objectForKey:@"created_time"] != nil){
     
@@ -810,4 +864,40 @@ GRKQueryResultBlock resultBlock = ^(id query, id result) {
 }
 
 
+-(BOOL)isResultForCommentsInTheExpectedFormat:(id)result {
+    // check if the result as the expected format, calls errorBlock if not.
+    if ( ! [result isKindOfClass:[NSDictionary class]] ){
+        return NO;
+    }
+    if ( [(NSDictionary *)result objectForKey:@"data"] == nil ){
+        return NO;    }
+    if ( ! [[(NSDictionary *)result objectForKey:@"data"] isKindOfClass:[NSArray class]] ){
+        return NO;
+    }
+    return YES;
+}
+
+/*
+ Example:
+ "id": "10150146071831729_4508512",
+ "from": {
+ "name": "Freda LjungBergkamp Wong",
+ "id": "688085523"
+ },
+ "message": "wish u all a very happy new year!!\nKung Hei Fat Choi!!!~!",
+ "can_remove": false,
+ "created_time": "2011-02-02T17:17:42+0000",
+ "like_count": 1,
+ "user_likes": false
+ */
+-(GRKComment*)commentWithRawComment:(NSDictionary *)rawComment {
+    NSDictionary* rawAuthor = [rawComment objectForKey:@"from"];
+    GRKAuthor*  author  = [[GRKAuthor alloc] initWithAuthorID:[rawAuthor objectForKey:@"id"]
+                                                      andName:[rawAuthor objectForKey:@"name"]];
+    GRKComment* comment = [[GRKComment alloc] initWithCommentID:[rawComment objectForKey:@"id"]
+                                                        message:[rawComment objectForKey:@"message"]
+                                                    publishDate:[self.dateFormatter dateFromString:[rawComment objectForKey:@"created_time"]]
+                                                  commentAuthor:author];
+    return comment;
+}
 @end

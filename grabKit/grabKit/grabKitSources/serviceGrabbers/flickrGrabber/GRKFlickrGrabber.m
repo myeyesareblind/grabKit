@@ -901,7 +901,7 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
 /*
 Example Response
  (NSDictionary *) $1 = 0x0a4bb8d0 {
- "_text" = "i want back this monitor...";
+ "_text" = "blah";
  author = "92257367@N05";
  authorname = myeyesareblind;
  datecreate = 1359984626;
