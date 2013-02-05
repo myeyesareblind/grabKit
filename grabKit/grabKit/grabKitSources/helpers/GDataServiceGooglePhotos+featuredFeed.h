@@ -6,9 +6,9 @@
 //
 //
 
-#import <GrabKitLib/GrabKitLib.h>
+#import "GDataServiceGooglePhotos.h"
 
-@interface GDataQueryGooglePhotos (featuredFeed)
+@interface GDataServiceGooglePhotos (featuredFeed)
 
 +(NSURL*)featuredPhotosFeed;
 

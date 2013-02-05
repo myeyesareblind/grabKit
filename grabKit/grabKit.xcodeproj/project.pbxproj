@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2507DD7A16C15514000053A3 /* GDataQueryGooglePhotos+featuredFeed.m in Sources */ = {isa = PBXBuildFile; fileRef = 2507DD7916C15514000053A3 /* GDataQueryGooglePhotos+featuredFeed.m */; };
-		2507DD7B16C1559A000053A3 /* GDataQueryGooglePhotos+featuredFeed.h in Headers */ = {isa = PBXBuildFile; fileRef = 2507DD7816C15514000053A3 /* GDataQueryGooglePhotos+featuredFeed.h */; };
+		2507DD7A16C15514000053A3 /* GDataServiceGooglePhotos+featuredFeed.m in Sources */ = {isa = PBXBuildFile; fileRef = 2507DD7916C15514000053A3 /* GDataServiceGooglePhotos+featuredFeed.m */; };
+		2507DD7B16C1559A000053A3 /* GDataServiceGooglePhotos+featuredFeed.h in Headers */ = {isa = PBXBuildFile; fileRef = 2507DD7816C15514000053A3 /* GDataServiceGooglePhotos+featuredFeed.h */; };
 		25195AA216B964650044D0A2 /* GRKCommentsInternalProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 25195AA016B963F80044D0A2 /* GRKCommentsInternalProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		25195AA916B967310044D0A2 /* FacebookSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25195AA816B967310044D0A2 /* FacebookSDK.framework */; };
 		25195AAE16B9673F0044D0A2 /* FacebookSDKResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 25195AAB16B9673F0044D0A2 /* FacebookSDKResources.bundle */; };
@@ -495,8 +495,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		2507DD7816C15514000053A3 /* GDataQueryGooglePhotos+featuredFeed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "GDataQueryGooglePhotos+featuredFeed.h"; sourceTree = "<group>"; };
-		2507DD7916C15514000053A3 /* GDataQueryGooglePhotos+featuredFeed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "GDataQueryGooglePhotos+featuredFeed.m"; sourceTree = "<group>"; };
+		2507DD7816C15514000053A3 /* GDataServiceGooglePhotos+featuredFeed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "GDataServiceGooglePhotos+featuredFeed.h"; sourceTree = "<group>"; };
+		2507DD7916C15514000053A3 /* GDataServiceGooglePhotos+featuredFeed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "GDataServiceGooglePhotos+featuredFeed.m"; sourceTree = "<group>"; };
 		25195AA016B963F80044D0A2 /* GRKCommentsInternalProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRKCommentsInternalProtocol.h; sourceTree = "<group>"; };
 		25195AA816B967310044D0A2 /* FacebookSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FacebookSDK.framework; path = ../../../../FacebookSDK/FacebookSDK.framework; sourceTree = "<group>"; };
 		25195AAB16B9673F0044D0A2 /* FacebookSDKResources.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = FacebookSDKResources.bundle; sourceTree = "<group>"; };
@@ -1079,8 +1079,8 @@
 				5F3C2CC315B9F945008D894A /* NSMutableArray+setObjectAtPosition.m */,
 				5F3C2CC415B9F945008D894A /* NSString+date.h */,
 				5F3C2CC515B9F945008D894A /* NSString+date.m */,
-				2507DD7816C15514000053A3 /* GDataQueryGooglePhotos+featuredFeed.h */,
-				2507DD7916C15514000053A3 /* GDataQueryGooglePhotos+featuredFeed.m */,
+				2507DD7816C15514000053A3 /* GDataServiceGooglePhotos+featuredFeed.h */,
+				2507DD7916C15514000053A3 /* GDataServiceGooglePhotos+featuredFeed.m */,
 			);
 			path = helpers;
 			sourceTree = "<group>";
@@ -1764,7 +1764,7 @@
 				255805B916B7E36500DA3C5E /* GRKAuthor.h in Headers */,
 				255805BA16B7E36500DA3C5E /* GRKComment.h in Headers */,
 				25195AA216B964650044D0A2 /* GRKCommentsInternalProtocol.h in Headers */,
-				2507DD7B16C1559A000053A3 /* GDataQueryGooglePhotos+featuredFeed.h in Headers */,
+				2507DD7B16C1559A000053A3 /* GDataServiceGooglePhotos+featuredFeed.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2094,7 +2094,7 @@
 				5FC65D5C16ADB4A900FCA059 /* GDataServiceGooglePhotos.m in Sources */,
 				25F0AB7716BFF3DA002A1800 /* GRKComment.m in Sources */,
 				25F0AB7816BFF3E1002A1800 /* GRKAuthor.m in Sources */,
-				2507DD7A16C15514000053A3 /* GDataQueryGooglePhotos+featuredFeed.m in Sources */,
+				2507DD7A16C15514000053A3 /* GDataServiceGooglePhotos+featuredFeed.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

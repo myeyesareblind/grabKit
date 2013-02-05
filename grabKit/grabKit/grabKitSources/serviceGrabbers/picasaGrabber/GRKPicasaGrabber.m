@@ -28,7 +28,7 @@
 #import "GRKPicasaSingleton.h"
 #import "GRKPicasaQueriesQueue.h"
 
-#import "GDataQueryGooglePhotos+featuredFeed.h"
+#import "GDataServiceGooglePhotos+featuredFeed.h"
 #import "GDataServiceGooglePhotos.h"
 #import "GDataBaseElements.h"
 #import "GRKComment.h"
@@ -443,12 +443,12 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
         @throw exception;
     }
     
-    NSURL *photosFeedURL = [GDataQueryGooglePhotos featuredPhotosFeed];
+    NSURL *photosFeedURL = [GDataServiceGooglePhotos featuredPhotosFeed];
     GDataQueryGooglePhotos * gDataPhotosQuery = [self photosQueryWithPhotosFeedURL:photosFeedURL
-                                                                        pageOffset:pageIndex
+                                                                        pageOffset:pageOffset
                                                              numberOfPhotosPerPage:numberOfPhotosPerPage];
     __block GRKPicasaQuery * featuredPhotosQuery = nil;
-    GRKQueryResultBlock* queryResultBlock = ^(id query, id result) {
+    GRKQueryResultBlock queryResultBlock = ^(id query, id result) {
         if ( ! [result isKindOfClass:[GDataFeedPhotoAlbum class]] ){
             
             if ( errorBlock != nil ){
@@ -486,7 +486,7 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
 
     };
     
-    GRKErrorBlock* queryErroBlock = ^(NSError* error) {
+    GRKErrorBlock queryErroBlock = ^(NSError* error) {
         if ( errorBlock != nil ){
             NSError * GRKError = [self errorForFeaturedPhotosOperationWithOriginalError:error];
             dispatch_async(dispatch_get_main_queue(), ^{
