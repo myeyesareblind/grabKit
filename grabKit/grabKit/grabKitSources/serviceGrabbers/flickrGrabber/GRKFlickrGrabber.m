@@ -46,6 +46,10 @@
 -(GRKImage *) imageWithRawPhotoDictionary:(NSDictionary*)rawPhoto forSizeKey:(NSString*)sizeKey;
 
 -(void)resetAndRebuildConnector;
+
+-(NSMutableDictionary*)photoQueryParametrsWithAlbumID:(NSString*)albumID
+                                            pageIndex:(NSUInteger)pageIndex
+                                numberOfPhotosPerPage:(NSUInteger)photosPerPage;
 @end
 
 @implementation GRKFlickrGrabber
@@ -269,35 +273,11 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
         @throw exception;
     }
     
-    NSMutableDictionary * params = [NSMutableDictionary  dictionary];
-    
-    // set the album id ("photoset" for FlickR) 
-    [params setObject:album.albumId forKey:@"photoset_id"];
-    
-    // use pageIndex+1 because Flickr starts at page 1, and we start at page 0
-    [params setObject:[[NSNumber numberWithInt:pageIndex+1] stringValue] forKey:@"page"];  
-    [params setObject:[[NSNumber numberWithInt:numberOfPhotosPerPage] stringValue] forKey:@"per_page"];   
-    
-    // ask only for photos, not for videos
-    [params setObject:@"photos" forKey:@"media"];   
-    
-    NSArray * fields = [NSArray arrayWithObjects:@"date_upload",
-                        @"date_taken", 
-                        @"last_update", 
-                        @"original_format",
-                        @"o_dims",
-                        @"description",
-                        @"url_l",
-                        @"url_sq",
-                        @"url_t",
-                        @"url_s",
-                        @"url_m",
-                        @"url_o",
-                        nil];
-    
-    [params setObject:[fields componentsJoinedByString:@","] forKey:@"extras"];
     
     __block GRKFlickrQuery * fillAlbumQuery = nil;
+    NSMutableDictionary* params = [self photoQueryParametrsWithAlbumID:album.albumId
+                                                             pageIndex:pageIndex
+                                                 numberOfPhotosPerPage:numberOfPhotosPerPage];
     
     fillAlbumQuery = [GRKFlickrQuery queryWithMethod:@"flickr.photosets.getPhotos"
                                   andParams:params
@@ -620,6 +600,86 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
 }
 
 
+-(void)featuredPhotosAtPageIndex:(NSUInteger)pageOffset
+       withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
+                andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock
+                   andErrorBlock:(GRKErrorBlock)errorBlock {
+    if ( numberOfPhotosPerPage > kGRKMaximumNumberOfPhotosPerPage ) {
+        
+        NSException* exception = [NSException
+                                  exceptionWithName:@"numberOfPhotosPerPageTooHigh"
+                                  reason:[NSString stringWithFormat:@"The number of photos per page you asked (%d) is too high", numberOfPhotosPerPage]
+                                  userInfo:nil];
+        @throw exception;
+    }
+    NSMutableDictionary* params = [self photoQueryParametrsWithAlbumID:nil
+                                                             pageIndex:pageOffset
+                                                 numberOfPhotosPerPage:numberOfPhotosPerPage];
+    
+    __block GRKFlickrQuery * grabPhotosQuery = nil;
+    GRKQueryResultBlock queryResultBlock = ^(id query, id result) {
+        if (! [self isResultForPhotosInTheExpectedFormat:result]) {
+            if (errorBlock) {
+                // Create an error for "bad format result" and call the errorBlock
+                NSError * error = [self errorForBadFormatResultForFeaturedPhotosOperation];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    errorBlock(error);
+                });
+            }
+            [self unregisterQueryAsLoading:grabPhotosQuery];
+            grabPhotosQuery = nil;
+        }
+        
+        // If there are more photos, rawPhotos is an NSArray.
+        // But if there is only 1 photo in the photoset, rawPhotos is a NSDictionary.
+        // Let's have a NSArray in every cases.
+        id rawPhotos = [[(NSDictionary *)result objectForKey:@"photoset"] objectForKey:@"photo"];
+        if ( [rawPhotos isKindOfClass:[NSDictionary class]] ){
+            rawPhotos = [NSArray arrayWithObject:rawPhotos];
+        }
+        
+        NSMutableArray * newPhotos = [NSMutableArray array];
+        
+        
+        for( NSDictionary * rawPhoto in rawPhotos ){
+#warning does it make sense to use autoreleasepool here? nothing will be drained
+            @autoreleasepool {
+                GRKPhoto * photo = [self photoWithRawPhotoFromPhotosetsGetPhotos:rawPhoto];
+                [newPhotos addObject:photo];
+            }
+        }
+        
+        if ( completeBlock != nil ){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completeBlock(newPhotos);
+            });
+        }
+        
+        [self unregisterQueryAsLoading:grabPhotosQuery];
+        grabPhotosQuery = nil;
+    };
+    
+    GRKErrorBlock queryErrorBlock = ^(NSError* error){
+        if ( errorBlock != nil ){
+            NSError * GRKError = [self errorForFillAlbumOperationWithOriginalError:error];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                errorBlock(GRKError);
+            });
+            
+        }
+        [self unregisterQueryAsLoading:grabPhotosQuery];
+        grabPhotosQuery = nil;
+    };
+    
+    grabPhotosQuery = [GRKFlickrQuery queryWithMethod:@"flickr.stats.getPopularPhotos"
+                                            andParams:params
+                                    withHandlingBlock:queryResultBlock
+                                        andErrorBlock:queryErrorBlock];
+    [self registerQueryAsLoading:grabPhotosQuery];
+    [grabPhotosQuery perform];
+}
+
+
 /* @see refer to GRKServiceGrabberProtocol documentation
  */
 -(void) cancelAll {
@@ -650,6 +710,45 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
         });
     }
     
+}
+
+
+#pragma mark - helper methods
+-(NSMutableDictionary*)photoQueryParametrsWithAlbumID:(NSString*)albumID
+                                            pageIndex:(NSUInteger)pageIndex
+                                numberOfPhotosPerPage:(NSUInteger)photosPerPage {
+    
+    NSMutableDictionary * params = [NSMutableDictionary  dictionary];
+    
+    // set the album id ("photoset" for FlickR)
+    if (albumID.length) {
+        [params setObject:albumID forKey:@"photoset_id"];
+    }
+    
+    // use pageIndex+1 because Flickr starts at page 1, and we start at page 0
+    [params setObject:[[NSNumber numberWithInt:pageIndex+1] stringValue] forKey:@"page"];
+    [params setObject:[[NSNumber numberWithInt:photosPerPage] stringValue] forKey:@"per_page"];
+    
+    // ask only for photos, not for videos
+    [params setObject:@"photos" forKey:@"media"];
+    
+    NSArray * fields = [NSArray arrayWithObjects:@"date_upload",
+                        @"date_taken",
+                        @"last_update",
+                        @"original_format",
+                        @"o_dims",
+                        @"description",
+                        @"url_l",
+                        @"url_sq",
+                        @"url_t",
+                        @"url_s",
+                        @"url_m",
+                        @"url_o",
+                        nil];
+    
+    [params setObject:[fields componentsJoinedByString:@","] forKey:@"extras"];
+    
+    return params;
 }
 
 

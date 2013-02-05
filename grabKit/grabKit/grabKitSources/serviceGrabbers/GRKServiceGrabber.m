@@ -150,6 +150,17 @@
     return error;
 }
 
+
+-(NSError *)errorForBadFormatResultForFeaturedPhotosOperation {
+    NSString * errorDomain = [NSString stringWithFormat:@"com.grabKit.%@.featuredPhotos", _serviceName];
+    NSDictionary * userInfo = [NSDictionary dictionaryWithObject:kGRKBadFormatResultErrorLocalizedDescription
+                                                          forKey:NSLocalizedDescriptionKey];
+    NSError * error = [NSError errorWithDomain:errorDomain
+                                          code:kGRKBadFormatResultErrorCode
+                                      userInfo:userInfo];
+    return error;
+}
+
 #pragma mark - GRKServiceGrabberProtocol methods. 
 
 /* /!\ ALL the following methods MUST be overriden by the subclassing objects */

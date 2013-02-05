@@ -208,6 +208,13 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
           andErrorBlock:(GRKErrorBlock)errorBlock;
 
 
+
+-(void) featuredPhotosAtPageIndex:(NSUInteger)pageOffset
+        withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
+                 andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock
+                    andErrorBlock:(GRKErrorBlock)errorBlock;
+
+
 /** @name Manage the loading queries */
 
 

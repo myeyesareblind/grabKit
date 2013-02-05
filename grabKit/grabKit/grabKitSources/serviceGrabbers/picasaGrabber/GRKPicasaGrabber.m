@@ -423,7 +423,8 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
        andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock
           andErrorBlock:(GRKErrorBlock)errorBlock {
     NSLog(@"Comments api are not implemented for picasa");
-//    
+#warning throw error / errorBlock(?)
+//
 //    if (numberOfCommentsPerPage > kGRKMaximumNumberOfCommentsPerPage) {
 //        NSException* exeption = [NSException exceptionWithName:@"numberOfCommentsPerPageTooHigh"
 //                                                        reason:[NSString stringWithFormat:@"The number of comments per page you asked (%d) exceeds maximum possible", numberOfCommentsPerPage]

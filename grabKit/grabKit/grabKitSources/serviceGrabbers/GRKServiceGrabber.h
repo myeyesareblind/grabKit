@@ -130,6 +130,8 @@ GRKServiceGrabber conforms to GRKServiceGrabberProtocol, but all the methods mus
 
 -(NSError *)errorForBadFormatResultCommentsOperation;
 
+-(NSError *)errorForBadFormatResultForFeaturedPhotosOperation;
+
 @end
 
 
