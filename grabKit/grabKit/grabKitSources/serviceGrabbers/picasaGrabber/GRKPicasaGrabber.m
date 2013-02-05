@@ -28,6 +28,7 @@
 #import "GRKPicasaSingleton.h"
 #import "GRKPicasaQueriesQueue.h"
 
+#import "GDataQueryGooglePhotos+featuredFeed.h"
 #import "GDataServiceGooglePhotos.h"
 #import "GDataBaseElements.h"
 #import "GRKComment.h"
@@ -36,6 +37,9 @@
 @interface GRKPicasaGrabber()
 -(GRKAlbum *) albumFromGDataEntryPhotoAlbum:(GDataEntryPhotoAlbum *) entry;
 -(GRKPhoto *) photoFromGDataEntryPhoto:(GDataEntryPhoto *) entry;
+-(GDataQueryGooglePhotos *) photosQueryWithPhotosFeedURL:(NSURL*)feedURL
+                                              pageOffset:(NSUInteger)pageOffset
+                                   numberOfPhotosPerPage:(NSUInteger)photosPerPage;
 @end
 
 
@@ -238,35 +242,18 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
         @throw exception;
     }
     
-    // use pageIndex+1 because Picasa starts at page 1, and we start at page 0
-	NSUInteger startIndex = (pageIndex * numberOfPhotosPerPage)+1;
-    
-  	NSString * sizes = @"32u,48u,64u,72u,104u,144u,"
-				       "150u,160u,94u,110u,128u,200u," 
-                       "220u,288u,320u,400u,512u,576u,"
-					   "640u,720u,800u,912u,1024u,"
-                       "1152u,1280u,1440u,1600u";
-
     NSString * userId = [GRKPicasaSingleton sharedInstance].userEmailAdress;
 
-    
 	NSURL *photosFeedURL = [GDataServiceGooglePhotos photoFeedURLForUserID:userId
 																   albumID:album.albumId 
 																 albumName:nil 
 																   photoID:nil 
 																	  kind:nil 
 																	access:nil];
-   
     
-    GDataQueryGooglePhotos * gDataPhotosQuery = [GDataQueryGooglePhotos queryWithFeedURL:photosFeedURL] ;
-   
-    // we want only one photo
-    [gDataPhotosQuery setStartIndex:startIndex];
-    [gDataPhotosQuery setMaxResults:numberOfPhotosPerPage];
-    [gDataPhotosQuery addCustomParameterWithName:@"thumbsize" value:sizes];
-   
-    
-    
+    GDataQueryGooglePhotos * gDataPhotosQuery = [self photosQueryWithPhotosFeedURL:photosFeedURL
+                                                                        pageOffset:pageIndex
+                                                             numberOfPhotosPerPage:numberOfPhotosPerPage];
     __block GRKPicasaQuery * fillAlbumQuery = nil;
     
     fillAlbumQuery = [GRKPicasaQuery queryWithQuery:gDataPhotosQuery
@@ -280,10 +267,6 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
                                       NSError * error = [self errorForBadFormatResultForFillAlbumOperationWithOriginalAlbum:album];
                                       dispatch_async(dispatch_get_main_queue(), ^{
                                           errorBlock(error);
-                                      });
-
-                                      dispatch_async(dispatch_get_main_queue(), ^{
-                                      errorBlock([NSError errorWithDomain:@"" code:0 userInfo:nil]);
                                       });
                                   }
                                   
@@ -403,18 +386,14 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
         });
         
     }];
-    
-    
-    
 }
 
+
 -(void) fillCoverPhotoOfAlbum:(GRKAlbum *)album andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock andErrorBlock:(GRKErrorBlock)errorBlock {
-    
     
     [self fillCoverPhotoOfAlbums:[NSArray arrayWithObject:album] 
                 withCompleteBlock:completeBlock 
                    andErrorBlock:errorBlock];
-    
 }
 
 -(void) commentsOfPhoto:(GRKPhoto *)photo
@@ -423,6 +402,7 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
        andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock
           andErrorBlock:(GRKErrorBlock)errorBlock {
     NSLog(@"Comments api are not implemented for picasa");
+///    GDataQuery should be used here?!!!!
 #warning throw error / errorBlock(?)
 //
 //    if (numberOfCommentsPerPage > kGRKMaximumNumberOfCommentsPerPage) {
@@ -440,10 +420,90 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
                                                                      photoID:photo.photoId
                                                                         kind:@"comment"
                                                                       access:@"all"];
-     This feed does work as expected, returns all the required field.
+     This feed does work as expected, returns all the required fields.
      Unfortunately, there is no GDataComment or some sort of that, so the comments are not parsed.
      One would need to patch GData to add new model types and parsing.
+     
+     ~~ use GDataQuery instead of GDataQueryGooglePhotos?
      */
+}
+
+
+-(void)featuredPhotosAtPageIndex:(NSUInteger)pageOffset
+       withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
+                andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock
+                   andErrorBlock:(GRKErrorBlock)errorBlock {
+    
+    if ( numberOfPhotosPerPage > kGRKMaximumNumberOfPhotosPerPage ) {
+        
+        NSException* exception = [NSException
+                                  exceptionWithName:@"numberOfPhotosPerPageTooHigh"
+                                  reason:[NSString stringWithFormat:@"The number of photos per page you asked (%d) is too high", numberOfPhotosPerPage]
+                                  userInfo:nil];
+        @throw exception;
+    }
+    
+    NSURL *photosFeedURL = [GDataQueryGooglePhotos featuredPhotosFeed];
+    GDataQueryGooglePhotos * gDataPhotosQuery = [self photosQueryWithPhotosFeedURL:photosFeedURL
+                                                                        pageOffset:pageIndex
+                                                             numberOfPhotosPerPage:numberOfPhotosPerPage];
+    __block GRKPicasaQuery * featuredPhotosQuery = nil;
+    GRKQueryResultBlock* queryResultBlock = ^(id query, id result) {
+        if ( ! [result isKindOfClass:[GDataFeedPhotoAlbum class]] ){
+            
+            if ( errorBlock != nil ){
+                
+                // Create an error for "bad format result" and call the errorBlock
+                NSError * error = [self errorForBadFormatResultForFeaturedPhotosOperation];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    errorBlock(error);
+                });
+            }
+            
+            [self unregisterQueryAsLoading:featuredPhotosQuery];
+            featuredPhotosQuery = nil;
+            return;
+        }
+        
+        NSMutableArray * newPhotos = [NSMutableArray array];
+        
+        for( GDataEntryPhoto * entry in [(GDataFeedPhotoAlbum *)result entries] ){
+            
+            @autoreleasepool {
+                GRKPhoto * photo = [self photoFromGDataEntryPhoto:entry];
+                [newPhotos addObject:photo];
+            }
+            
+        }
+        
+        if ( completeBlock != nil ){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completeBlock(newPhotos);
+            });
+        }
+        [self unregisterQueryAsLoading:featuredPhotosQuery];
+        featuredPhotosQuery = nil;
+
+    };
+    
+    GRKErrorBlock* queryErroBlock = ^(NSError* error) {
+        if ( errorBlock != nil ){
+            NSError * GRKError = [self errorForFeaturedPhotosOperationWithOriginalError:error];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                errorBlock(GRKError);
+            });
+            
+        }
+        [self unregisterQueryAsLoading:featuredPhotosQuery];
+        featuredPhotosQuery = nil;
+    };
+    
+    featuredPhotosQuery = [GRKPicasaQuery queryWithQuery:gDataPhotosQuery
+                                       withHandlingBlock:queryResultBlock
+                                           andErrorBlock:queryErroBlock];
+    
+    [self registerQueryAsLoading:featuredPhotosQuery];
+    [featuredPhotosQuery perform];
 }
 
 
@@ -478,6 +538,27 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
 
 
 #pragma mark - Internal processing methods
+-(GDataQueryGooglePhotos *) photosQueryWithPhotosFeedURL:(NSURL*)feedURL
+                                              pageOffset:(NSUInteger)pageOffset
+                                   numberOfPhotosPerPage:(NSUInteger)photosPerPage {
+    // use pageIndex+1 because Picasa starts at page 1, and we start at page 0
+	NSUInteger startIndex = (pageOffset * photosPerPage)+1;
+    
+  	NSString * sizes = @"32u,48u,64u,72u,104u,144u,"
+    "150u,160u,94u,110u,128u,200u,"
+    "220u,288u,320u,400u,512u,576u,"
+    "640u,720u,800u,912u,1024u,"
+    "1152u,1280u,1440u,1600u";
+    
+    
+    GDataQueryGooglePhotos * gDataPhotosQuery = [GDataQueryGooglePhotos queryWithFeedURL:feedURL];
+    
+    // we want only one photo
+    [gDataPhotosQuery setStartIndex:startIndex];
+    [gDataPhotosQuery setMaxResults:photosPerPage];
+    [gDataPhotosQuery addCustomParameterWithName:@"thumbsize" value:sizes];
+    return gDataPhotosQuery;
+}
 
 
 /** Build and return a GRKAlbum from the given GDataEntryPhotoAlbum.

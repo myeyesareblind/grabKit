@@ -661,11 +661,10 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
     
     GRKErrorBlock queryErrorBlock = ^(NSError* error){
         if ( errorBlock != nil ){
-            NSError * GRKError = [self errorForFillAlbumOperationWithOriginalError:error];
+            NSError * GRKError = [self errorForFeaturedPhotosOperationWithOriginalError:error];
             dispatch_async(dispatch_get_main_queue(), ^{
                 errorBlock(GRKError);
             });
-            
         }
         [self unregisterQueryAsLoading:grabPhotosQuery];
         grabPhotosQuery = nil;

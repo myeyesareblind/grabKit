@@ -150,6 +150,11 @@
     return error;
 }
 
+-(NSError *)errorForCommentsOperationWithOriginalError:(NSError*) originalError {
+    return [self errorWithOriginalError:originalError
+                           forOperation:@"GrabComments"];
+}
+
 
 -(NSError *)errorForBadFormatResultForFeaturedPhotosOperation {
     NSString * errorDomain = [NSString stringWithFormat:@"com.grabKit.%@.featuredPhotos", _serviceName];
@@ -159,6 +164,11 @@
                                           code:kGRKBadFormatResultErrorCode
                                       userInfo:userInfo];
     return error;
+}
+
+-(NSError*)errorForFeaturedPhotosOperationWithOriginalError:(NSError *)originalError {
+    return [self errorWithOriginalError:originalError
+                           forOperation:@"featuredPhotos"];
 }
 
 #pragma mark - GRKServiceGrabberProtocol methods. 

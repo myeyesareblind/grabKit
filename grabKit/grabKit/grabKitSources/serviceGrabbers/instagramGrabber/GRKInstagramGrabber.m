@@ -30,7 +30,9 @@
 #import "GRKAuthor.h"
 #import "GRKCommentsInternalProtocol.h"
 
-@interface GRKInstagramGrabber()<GRKCommentsInternalProtocol>
+@interface GRKInstagramGrabber()<GRKCommentsInternalProtocol> {
+    GRKPhoto* _lastFeaturedPhoto;
+}
 
 -(BOOL) isResultForAlbumsInTheExpectedFormat:(id)result;
 
@@ -491,6 +493,98 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
 }
 
 
+-(void) featuredPhotosAtPageIndex:(NSUInteger)pageOffset
+        withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
+                 andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock
+                    andErrorBlock:(GRKErrorBlock)errorBlock {
+    
+    if ( numberOfPhotosPerPage > kGRKMaximumNumberOfPhotosPerPage ) {
+        
+        NSException* exception = [NSException
+                                  exceptionWithName:@"numberOfPhotosPerPageTooHigh"
+                                  reason:[NSString stringWithFormat:@"The number of photos per page you asked (%d) is too high", numberOfPhotosPerPage]
+                                  userInfo:nil];
+        @throw exception;
+    }
+    
+    NSMutableDictionary * params = [NSMutableDictionary dictionary];
+    [params setObject:[NSNumber numberWithInt:numberOfPhotosPerPage]
+               forKey:@"count"];
+    
+    if ( pageOffset > 0 ){
+        
+        if (!_lastFeaturedPhoto){
+            // discontinuous grabbing error
+            if ( errorBlock != nil ){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    errorBlock(nil);
+                });
+            }
+            return;
+        }
+        [params setObject:_lastFeaturedPhoto.photoId forKey:@"max_id"];
+    }
+    
+    NSString * endpoint = @"media/popular";
+    
+    __block GRKInstagramQuery * featuredPhotosQuery = nil;
+    GRKQueryResultBlock queryResultBlock = ^(id query, id result) {
+        if ( ! [self isResultForPhotosInTheExpectedFormat:result] ){
+            
+            if ( errorBlock != nil ){
+                // Create an error for "bad format result" and call the errorBlock
+                NSError * error = [self errorForBadFormatResultForFeaturedPhotosOperation];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    errorBlock(error);
+                });
+            }
+            
+            [self unregisterQueryAsLoading:featuredPhotosQuery];
+            featuredPhotosQuery = nil;
+            return;
+        }
+        
+        
+        NSArray * rawPhotos = [(NSDictionary*)result objectForKey:@"data"];
+        NSMutableArray * newPhotos = [NSMutableArray array];
+        
+        
+        for ( NSDictionary * rawPhoto in  rawPhotos ){
+            @autoreleasepool {
+                GRKPhoto * photo = [self photoWithRawPhoto:rawPhoto];
+                [newPhotos addObject:photo];
+            }
+        }
+        
+        if ( completeBlock != nil ){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completeBlock(newPhotos);
+            });
+        }
+        [self unregisterQueryAsLoading:featuredPhotosQuery];
+        featuredPhotosQuery = nil;
+    };
+    
+    GRKErrorBlock queryErrorBlock = ^(NSError* error) {
+        if ( errorBlock != nil ){
+            NSError * GRKError = [self errorForFillAlbumOperationWithOriginalError:error];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                errorBlock(GRKError);
+            });
+            
+        }
+        
+        [self unregisterQueryAsLoading:featuredPhotosQuery];
+        featuredPhotosQuery = nil;
+    };
+
+    featuredPhotosQuery = [GRKInstagramQuery queryWithEndpoint:endpoint
+                                                    withParams:params
+                                             withHandlingBlock:queryResultBlock                                                 andErrorBlock:queryErrorBlock];
+    
+    [self registerQueryAsLoading:featuredPhotosQuery];
+    [featuredPhotosQuery perform];
+}
 
 /* @see refer to GRKServiceGrabberProtocol documentation
  */

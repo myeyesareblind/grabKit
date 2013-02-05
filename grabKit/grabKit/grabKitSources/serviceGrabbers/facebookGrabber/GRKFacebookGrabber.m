@@ -677,6 +677,12 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
     [commentsQuery perform];
 }
 
+-(void)featuredPhotosAtPageIndex:(NSUInteger)pageOffset withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock andErrorBlock:(GRKErrorBlock)errorBlock {
+    
+    NSLog(@"facebook doesnt offer the featured photos api"); /// or at least i didnt find one
+    
+}
+
 /* @see refer to GRKServiceGrabberProtocol documentation
  */
 -(void) cancelAll {
