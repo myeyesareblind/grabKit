@@ -36,6 +36,7 @@
 -(BOOL) isResultForAlbumsInTheExpectedFormat:(id)result;
 -(GRKAlbum *) albumWithRawAlbum:(NSDictionary*)rawAlbum;
 
+-(BOOL) isResultForFeaturedPhotosInTheExpectedFormat:(id)result;
 -(BOOL) isResultForPhotosInTheExpectedFormat:(id)result;
 -(GRKPhoto *) photoWithRawPhotoFromPhotosetsGetPhotos:(NSDictionary*)rawPhoto;
 
@@ -618,7 +619,7 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
     
     __block GRKFlickrQuery * grabPhotosQuery = nil;
     GRKQueryResultBlock queryResultBlock = ^(id query, id result) {
-        if (! [self isResultForPhotosInTheExpectedFormat:result]) {
+        if (! [self isResultForFeaturedPhotosInTheExpectedFormat:result]) {
             if (errorBlock) {
                 // Create an error for "bad format result" and call the errorBlock
                 NSError * error = [self errorForBadFormatResultForFeaturedPhotosOperation];
@@ -633,7 +634,7 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
         // If there are more photos, rawPhotos is an NSArray.
         // But if there is only 1 photo in the photoset, rawPhotos is a NSDictionary.
         // Let's have a NSArray in every cases.
-        id rawPhotos = [[(NSDictionary *)result objectForKey:@"photoset"] objectForKey:@"photo"];
+        id rawPhotos = [[(NSDictionary *)result objectForKey:@"photos"] objectForKey:@"photo"];
         if ( [rawPhotos isKindOfClass:[NSDictionary class]] ){
             rawPhotos = [NSArray arrayWithObject:rawPhotos];
         }
@@ -670,7 +671,7 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
         grabPhotosQuery = nil;
     };
     
-    grabPhotosQuery = [GRKFlickrQuery queryWithMethod:@"flickr.stats.getPopularPhotos"
+    grabPhotosQuery = [GRKFlickrQuery queryWithMethod:@"flickr.interestingness.getList"
                                             andParams:params
                                     withHandlingBlock:queryResultBlock
                                         andErrorBlock:queryErrorBlock];
@@ -809,6 +810,22 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
 	return album;
     
     
+}
+
+-(BOOL) isResultForFeaturedPhotosInTheExpectedFormat:(id)result {
+    // check if the result as the expected format, calls errorBlock if not.
+    if ( ! [result isKindOfClass:[NSDictionary class]] ){
+        return NO;
+    }
+    if ( [(NSDictionary *)result objectForKey:@"photos"] == nil ){
+        return NO;
+    }
+    /*
+     if ( ! [[[(NSDictionary *)result objectForKey:@"photoset"] objectForKey:@"photo"] isKindOfClass:[NSArray class]] ){
+     return NO;
+     }
+     */
+    return YES;
 }
 
 /** Check if the given result for a photo is in the expected format.

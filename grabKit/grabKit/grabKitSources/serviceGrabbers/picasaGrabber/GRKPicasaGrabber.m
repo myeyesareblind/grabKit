@@ -449,6 +449,10 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
                                                              numberOfPhotosPerPage:numberOfPhotosPerPage];
     __block GRKPicasaQuery * featuredPhotosQuery = nil;
     GRKQueryResultBlock queryResultBlock = ^(id query, id result) {
+#warning UNPARSED, throw error?
+/*
+GDataFeedBase 0x1262b5c0: {v:2.0 entries:500 etag:W/"D0ABQX0yfyp7ImA9WhBTEUo." updated:2013-02-06T18:35:50Z links:feed,self,next id:https://photos.googleapis.com/data/feed/featured unparsed:<gphoto:crowded_length>}
+*/
         if ( ! [result isKindOfClass:[GDataFeedPhotoAlbum class]] ){
             
             if ( errorBlock != nil ){

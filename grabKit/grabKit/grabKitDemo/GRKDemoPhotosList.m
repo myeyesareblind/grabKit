@@ -30,6 +30,12 @@ NSUInteger kNumberOfPhotosPerCell = 4;
 NSUInteger kNumberOfPhotosPerPage = 7 * 4; 
 
 @interface GRKDemoPhotosList()
+-(id)   initWitNib:(NSString*)nibname
+          inBundle:(NSBundle*)bundle
+      featuredFeed:(BOOL)grabFeaturedFeed
+             album:(GRKAlbum*)album
+         inGrabber:(GRKServiceGrabber*)grabber;
+
     -(NSArray*) photosForCellAtIndexPath:(NSIndexPath*)indexPath;
     -(void) fillAlbumWithMorePhotos;
     -(void) setState:(GRKDemoPhotosListState)newState;
@@ -52,12 +58,48 @@ NSUInteger kNumberOfPhotosPerPage = 7 * 4;
 }
 
 
--(id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil andGrabber:(GRKServiceGrabber*)grabber  andAlbum:(GRKAlbum*)album{
+-(id) initWithNibName:(NSString *)nibNameOrNil
+               bundle:(NSBundle *)nibBundleOrNil
+           andGrabber:(GRKServiceGrabber*)grabber
+             andAlbum:(GRKAlbum*)album {
     
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    self = [self initWitNib:nibNameOrNil
+                   inBundle:nibBundleOrNil
+               featuredFeed:NO
+                      album:album
+                  inGrabber:grabber];
+    return self;
+}
+
+
+- (id)initForFeaturedFeedWithNibName:(NSString *)nibNameOrNil
+                              bundle:(NSBundle *)bundle
+                          andGrabber:(GRKServiceGrabber *)grabber {
+    
+    return [self initWitNib:nibNameOrNil
+                   inBundle:bundle
+               featuredFeed:YES
+                      album:nil
+                  inGrabber:grabber];
+}
+
+
+-(id)   initWitNib:(NSString*)nibname
+          inBundle:(NSBundle*)bundle
+      featuredFeed:(BOOL)grabFeaturedFeed
+             album:(GRKAlbum*)album
+         inGrabber:(GRKServiceGrabber*)grabber {
+    
+    self = [super initWithNibName:nibname
+                           bundle:bundle];
     if ( self != nil ){
         
-        _grabber = grabber;     
+        if (grabFeaturedFeed) {
+            NSAssert(! album, @"featured feed will not use album");
+        }
+        _grabFeaturedFeed = grabFeaturedFeed;
+        
+        _grabber = grabber;
         _album = album;
         _lastLoadedPageIndex = 0;
         _nextPageIndexToLoad = 0;
@@ -67,6 +109,7 @@ NSUInteger kNumberOfPhotosPerPage = 7 * 4;
     
     return self;
 }
+
 
 - (void)didReceiveMemoryWarning
 {
@@ -140,13 +183,14 @@ NSUInteger kNumberOfPhotosPerPage = 7 * 4;
 
 
 
--(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+-(void)observeValueForKeyPath:(NSString *)keyPath
+                     ofObject:(id)object
+                       change:(NSDictionary *)change
+                      context:(void *)context {
     
     if ( [keyPath isEqualToString:@"count"] && object == _album ){
-        
         [self.tableView reloadData];
     }
-    
 }
 
 
@@ -157,9 +201,14 @@ NSUInteger kNumberOfPhotosPerPage = 7 * 4;
  switch (newState) {
 
      case GRKDemoPhotosListStateInitial:{
-         
-         [_album addObserver:self forKeyPath:@"count" options:NSKeyValueObservingOptionNew context:nil];
-         
+         if (_grabFeaturedFeed) {
+             
+         }else {
+             [_album addObserver:self
+                      forKeyPath:@"count"
+                         options:NSKeyValueObservingOptionNew
+                         context:nil];
+         }         
      }
      break;
          
@@ -181,9 +230,7 @@ NSUInteger kNumberOfPhotosPerPage = 7 * 4;
      default:
          break;
  }
- 
- 
- }
+}
  
 
 #pragma mark - Helpers
@@ -193,7 +240,8 @@ NSUInteger kNumberOfPhotosPerPage = 7 * 4;
     NSUInteger rowIndex = indexPath.section * kNumberOfRowsPerSection + indexPath.row ; 
     
     NSMutableArray * photosAtIndexPath = [NSMutableArray array];
-    [photosAtIndexPath addObjectsFromArray:[_album photosAtPageIndex:rowIndex withNumberOfPhotosPerPage:kNumberOfPhotosPerCell]];
+    [photosAtIndexPath addObjectsFromArray:[_album photosAtPageIndex:rowIndex
+                                           withNumberOfPhotosPerPage:kNumberOfPhotosPerCell]];
     
     
     // let's remove some NSNull...
@@ -229,21 +277,33 @@ NSUInteger kNumberOfPhotosPerPage = 7 * 4;
     
     [self setState:GRKDemoPhotosListStateGrabbing];
     
-    [_grabber fillAlbum:_album
-  withPhotosAtPageIndex:pageToLoad 
-withNumberOfPhotosPerPage:kNumberOfPhotosPerPage
-       andCompleteBlock:^(NSArray *results) {
+    if (_grabFeaturedFeed) {
+        [_grabber featuredPhotosAtPageIndex:0
+                  withNumberOfPhotosPerPage:500
+                           andCompleteBlock:^(id result) {
+                               NSLog(@"grab result: %@", result);
+                           }
+                              andErrorBlock:^(NSError* error){
+                                  NSLog(@"cant grab featured photos, error %@", error);
+                              }];
+    }
+    else {
+        [_grabber fillAlbum:_album
+      withPhotosAtPageIndex:pageToLoad 
+    withNumberOfPhotosPerPage:kNumberOfPhotosPerPage
+           andCompleteBlock:^(NSArray *results) {
 
-          // _lastLoadedPageIndex++;
-           _lastLoadedPageIndex = pageToLoad;
-           
-           if ( [results count] < kNumberOfPhotosPerPage )
-               [self setState:GRKDemoPhotosListStateAllPhotosGrabbed];
-           else [self setState:GRKDemoPhotosListStatePhotosGrabbed];
-           
-       } andErrorBlock:^(NSError *error) {
-           NSLog(@" error for page %d : %@", pageToLoad,  error);
-       }];
+              // _lastLoadedPageIndex++;
+               _lastLoadedPageIndex = pageToLoad;
+               
+               if ( [results count] < kNumberOfPhotosPerPage )
+                   [self setState:GRKDemoPhotosListStateAllPhotosGrabbed];
+               else [self setState:GRKDemoPhotosListStatePhotosGrabbed];
+               
+           } andErrorBlock:^(NSError *error) {
+               NSLog(@" error for page %d : %@", pageToLoad,  error);
+           }];
+    }
     
     _nextPageIndexToLoad++;
     

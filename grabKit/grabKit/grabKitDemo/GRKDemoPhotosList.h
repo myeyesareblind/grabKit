@@ -43,6 +43,7 @@ typedef NSUInteger GRKDemoPhotosListState;
 
     GRKServiceGrabber * _grabber;
     GRKAlbum * _album;
+    BOOL       _grabFeaturedFeed;
     
     GRKDemoPhotosListState state;
     
@@ -51,6 +52,14 @@ typedef NSUInteger GRKDemoPhotosListState;
 }
 
 
--(id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil andGrabber:(GRKServiceGrabber*)grabber andAlbum:(GRKAlbum*)album;
+-(id) initWithNibName:(NSString *)nibNameOrNil
+               bundle:(NSBundle *)nibBundleOrNil
+           andGrabber:(GRKServiceGrabber*)grabber
+             andAlbum:(GRKAlbum*)album;
+
+
+-(id) initForFeaturedFeedWithNibName:(NSString*)nibNameOrNil
+                              bundle:(NSString*)bundle
+                          andGrabber:(GRKServiceGrabber*)grabber;
 
 @end

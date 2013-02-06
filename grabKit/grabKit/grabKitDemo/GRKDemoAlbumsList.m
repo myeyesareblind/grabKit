@@ -230,6 +230,8 @@ NSUInteger kNumberOfAlbumsPerPage = 8;
     // If all albums have been grabbed, show an extra cell for "N Albums"
     if ( state == GRKDemoAlbumsListStateAllAlbumsGrabbed ) res++;
     
+    /// additional item for featured photos
+    res ++;
     
     return res;
 }
@@ -238,23 +240,28 @@ NSUInteger kNumberOfAlbumsPerPage = 8;
 {
     
     UITableViewCell *cell = nil;
-    
+    NSInteger row         = indexPath.row;
     // Handle the extra cell
-    if ( indexPath.row >= [_albums count] ){
-
+    if ( (row >= [_albums count] + 1) || row == 0 ){
+        
         static NSString *CellIdentifier = @"ExtraCell";
-    
+        
         cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
         if (cell == nil) {
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         }
-
-        if ( ! allAlbumsGrabbed ){ 
-            cell.textLabel.text = [NSString stringWithFormat:@"%d Albums - Load More", [_albums count]];
+        
+        if (row == 0) {
+            cell.textLabel.text = @"Featured feed";
             cell.textLabel.font = [UIFont fontWithName:@"System" size:8];
-        } else {
-            cell.textLabel.text = [NSString stringWithFormat:@"%d Albums", [_albums count]];
-            cell.textLabel.font = [UIFont fontWithName:@"System" size:8];
+        }else {
+            if ( ! allAlbumsGrabbed ){
+                cell.textLabel.text = [NSString stringWithFormat:@"%d Albums - Load More", [_albums count]];
+                cell.textLabel.font = [UIFont fontWithName:@"System" size:8];
+            } else {
+                cell.textLabel.text = [NSString stringWithFormat:@"%d Albums", [_albums count]];
+                cell.textLabel.font = [UIFont fontWithName:@"System" size:8];
+            }
         }
         
     }else {
@@ -267,15 +274,15 @@ NSUInteger kNumberOfAlbumsPerPage = 8;
             cell = [[[NSBundle mainBundle] loadNibNamed:@"GRKDemoAlbumsListCell" owner:nil options:nil] objectAtIndex:0];
         }
         
-        GRKAlbum * albumAtIndexPath = (GRKAlbum*)[_albums objectAtIndex:indexPath.row];
-
+        GRKAlbum * albumAtIndexPath = (GRKAlbum*)[_albums objectAtIndex:indexPath.row - 1];
+        
         
         [(GRKDemoAlbumsListCell*)cell setAlbum:albumAtIndexPath];
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-
+        
         
     }
-
+    
     
     return cell;
 }
@@ -286,11 +293,22 @@ NSUInteger kNumberOfAlbumsPerPage = 8;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [[tableView cellForRowAtIndexPath:indexPath] setSelected:NO];
+    NSInteger row = indexPath.row;
     
+    if (!row) {
+        GRKDemoPhotosList* photoList = [[GRKDemoPhotosList alloc] initForFeaturedFeedWithNibName:@"GRKDemoPhotosList"
+                                                                                          bundle:nil
+                                                                                      andGrabber:_grabber];
+        [self.navigationController pushViewController:photoList animated:YES];
+        
+        return ;
+    }
+    
+    row --;
     // If the user touched the "load more" cell, and if there are still more albums to load
-    if ( indexPath.row == [_albums count]  && ! allAlbumsGrabbed ){
+    if ( row == [_albums count]  && ! allAlbumsGrabbed ){
         [self grabMoreAlbums];
-    }else if ( indexPath.row <= [_albums count] -1 ) {
+    }else if ( row <= [_albums count] -1 ) {
         
         GRKAlbum * albumAtIndexPath = [_albums objectAtIndex:indexPath.row];
         

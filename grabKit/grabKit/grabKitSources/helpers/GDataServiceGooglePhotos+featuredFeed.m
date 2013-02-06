@@ -13,7 +13,7 @@
 
 +(NSURL*) featuredPhotosFeed {
     NSString *rootString = [GDataServiceGooglePhotos serviceRootURLString];
-    NSString* urlString = [NSString stringWithFormat:@"%@/feed/api/featured", rootString];
+    NSString* urlString = [NSString stringWithFormat:@"%@feed/api/featured", rootString];
     return [NSURL URLWithString:urlString];
 }
 
