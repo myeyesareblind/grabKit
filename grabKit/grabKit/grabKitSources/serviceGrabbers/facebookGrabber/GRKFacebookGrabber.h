@@ -28,6 +28,7 @@
 #import "GRKServiceGrabberProtocol.h"
 #import "GRKServiceGrabberConnectionProtocol.h"
 #import "GRKFacebookConnector.h"
+#import "GRKServiceCommentsGrabberProtocol.h"
 
 //#import "Facebook.h"
 
@@ -40,7 +41,10 @@ static NSString *kGRKServiceNameFacebook = @"GRKFacebookGrabber";
  * @see Lib Reference : https://developers.facebook.com/docs/reference/iossdk/ 
  *
  */
-@interface GRKFacebookGrabber : GRKServiceGrabber <GRKServiceGrabberProtocol, GRKServiceGrabberConnectionProtocol> {
+@interface GRKFacebookGrabber : GRKServiceGrabber <
+GRKServiceGrabberProtocol,
+GRKServiceGrabberConnectionProtocol,
+GRKServiceCommentsGrabberProtocol> {
 
     __block GRKFacebookConnector * facebookConnector;
 

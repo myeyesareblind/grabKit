@@ -14,6 +14,8 @@
 		25195AAE16B9673F0044D0A2 /* FacebookSDKResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 25195AAB16B9673F0044D0A2 /* FacebookSDKResources.bundle */; };
 		25195AAF16B9673F0044D0A2 /* FBUserSettingsViewResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 25195AAC16B9673F0044D0A2 /* FBUserSettingsViewResources.bundle */; };
 		25195AB616B969040044D0A2 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 25195AB516B969040044D0A2 /* Default-568h@2x.png */; };
+		253FFF4116C3B90C002369F7 /* GRKServiceCommentsGrabberProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 253FFF4016C3B90C002369F7 /* GRKServiceCommentsGrabberProtocol.h */; };
+		253FFF4316C3B963002369F7 /* GRKServiceFeaturedPhotosGrabberProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 253FFF4216C3B963002369F7 /* GRKServiceFeaturedPhotosGrabberProtocol.h */; };
 		255805B416B7E35100DA3C5E /* GRKAuthor.m in Sources */ = {isa = PBXBuildFile; fileRef = 255805B316B7E35100DA3C5E /* GRKAuthor.m */; };
 		255805B916B7E36500DA3C5E /* GRKAuthor.h in Headers */ = {isa = PBXBuildFile; fileRef = 255805B616B7E36400DA3C5E /* GRKAuthor.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		255805BA16B7E36500DA3C5E /* GRKComment.h in Headers */ = {isa = PBXBuildFile; fileRef = 255805B716B7E36400DA3C5E /* GRKComment.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -502,6 +504,8 @@
 		25195AAB16B9673F0044D0A2 /* FacebookSDKResources.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = FacebookSDKResources.bundle; sourceTree = "<group>"; };
 		25195AAC16B9673F0044D0A2 /* FBUserSettingsViewResources.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = FBUserSettingsViewResources.bundle; sourceTree = "<group>"; };
 		25195AB516B969040044D0A2 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		253FFF4016C3B90C002369F7 /* GRKServiceCommentsGrabberProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRKServiceCommentsGrabberProtocol.h; sourceTree = "<group>"; };
+		253FFF4216C3B963002369F7 /* GRKServiceFeaturedPhotosGrabberProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRKServiceFeaturedPhotosGrabberProtocol.h; sourceTree = "<group>"; };
 		255805B316B7E35100DA3C5E /* GRKAuthor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GRKAuthor.m; sourceTree = "<group>"; };
 		255805B616B7E36400DA3C5E /* GRKAuthor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRKAuthor.h; sourceTree = "<group>"; };
 		255805B716B7E36400DA3C5E /* GRKComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRKComment.h; sourceTree = "<group>"; };
@@ -1205,6 +1209,8 @@
 				5F3C2D0815B9F945008D894A /* GRKServiceGrabberProtocol.h */,
 				5F3C2D0915B9F945008D894A /* GRKServiceQueryProtocol.h */,
 				25195AA016B963F80044D0A2 /* GRKCommentsInternalProtocol.h */,
+				253FFF4016C3B90C002369F7 /* GRKServiceCommentsGrabberProtocol.h */,
+				253FFF4216C3B963002369F7 /* GRKServiceFeaturedPhotosGrabberProtocol.h */,
 			);
 			path = protocols;
 			sourceTree = "<group>";
@@ -1765,6 +1771,8 @@
 				255805BA16B7E36500DA3C5E /* GRKComment.h in Headers */,
 				25195AA216B964650044D0A2 /* GRKCommentsInternalProtocol.h in Headers */,
 				2507DD7B16C1559A000053A3 /* GDataServiceGooglePhotos+featuredFeed.h in Headers */,
+				253FFF4116C3B90C002369F7 /* GRKServiceCommentsGrabberProtocol.h in Headers */,
+				253FFF4316C3B963002369F7 /* GRKServiceFeaturedPhotosGrabberProtocol.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -199,22 +199,6 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
              andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock 
                 andErrorBlock:(GRKErrorBlock)errorBlock;
 
-
-
--(void) commentsOfPhoto:(GRKPhoto*)photo
-withCommentsAtPageIndex:(NSUInteger)pageIndex
-withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
-       andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock
-          andErrorBlock:(GRKErrorBlock)errorBlock;
-
-
-
--(void) featuredPhotosAtPageIndex:(NSUInteger)pageOffset
-        withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
-                 andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock
-                    andErrorBlock:(GRKErrorBlock)errorBlock;
-
-
 /** @name Manage the loading queries */
 
 

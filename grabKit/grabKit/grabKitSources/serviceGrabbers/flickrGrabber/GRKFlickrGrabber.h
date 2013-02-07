@@ -26,6 +26,8 @@
 #import "GRKServiceGrabberProtocol.h"
 #import "GRKServiceGrabberConnectionProtocol.h"
 #import "GRKFlickrConnector.h"
+#import "GRKServiceCommentsGrabberProtocol.h"
+#import "GRKServiceFeaturedPhotosGrabberProtocol.h"
 
 
 static NSString *kGRKServiceNameFlickr = @"GRKFlickrGrabber";
@@ -36,8 +38,12 @@ static NSString *kGRKServiceNameFlickr = @"GRKFlickrGrabber";
  * @see Lib Reference : https://github.com/lukhnos/objectiveflickr
  *
  */
-@interface GRKFlickrGrabber : GRKServiceGrabber <GRKServiceGrabberProtocol, GRKServiceGrabberConnectionProtocol>{
- 
+@interface GRKFlickrGrabber : GRKServiceGrabber<
+GRKServiceGrabberProtocol,
+GRKServiceGrabberConnectionProtocol,
+GRKServiceCommentsGrabberProtocol,
+GRKServiceFeaturedPhotosGrabberProtocol>{
+    
     __block GRKFlickrConnector * flickrConnector;
     
 }

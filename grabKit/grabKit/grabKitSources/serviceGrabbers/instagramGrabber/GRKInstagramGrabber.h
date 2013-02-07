@@ -26,6 +26,8 @@
 #import "GRKServiceGrabberConnectionProtocol.h"
 #import "GRKServiceGrabber.h"
 #import "GRKInstagramConnector.h"
+#import "GRKServiceFeaturedPhotosGrabberProtocol.h"
+#import "GRKServiceCommentsGrabberProtocol.h"
 
 static NSString *kGRKServiceNameInstagram = @"GRKInstagramGrabber";
 
@@ -36,7 +38,11 @@ static NSString *kGRKServiceNameInstagram = @"GRKInstagramGrabber";
  *
  * @see Reference : http://instagram.com/developer/
  */
-@interface GRKInstagramGrabber : GRKServiceGrabber <GRKServiceGrabberProtocol, GRKServiceGrabberConnectionProtocol> {
+@interface GRKInstagramGrabber : GRKServiceGrabber <
+GRKServiceGrabberProtocol,
+GRKServiceGrabberConnectionProtocol,
+GRKServiceFeaturedPhotosGrabberProtocol,
+GRKServiceCommentsGrabberProtocol> {
     
     __block GRKInstagramConnector * instagramConnector;
     

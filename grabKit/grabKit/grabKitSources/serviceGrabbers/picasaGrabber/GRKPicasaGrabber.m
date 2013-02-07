@@ -396,23 +396,14 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
                    andErrorBlock:errorBlock];
 }
 
+/*
 -(void) commentsOfPhoto:(GRKPhoto *)photo
 withCommentsAtPageIndex:(NSUInteger)pageIndex
 withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
        andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock
           andErrorBlock:(GRKErrorBlock)errorBlock {
     NSLog(@"Comments api are not implemented for picasa");
-///    GDataQuery should be used here?!!!!
-#warning throw error / errorBlock(?)
-//
-//    if (numberOfCommentsPerPage > kGRKMaximumNumberOfCommentsPerPage) {
-//        NSException* exeption = [NSException exceptionWithName:@"numberOfCommentsPerPageTooHigh"
-//                                                        reason:[NSString stringWithFormat:@"The number of comments per page you asked (%d) exceeds maximum possible", numberOfCommentsPerPage]
-//                                                      userInfo:nil];
-//        @throw exeption;
-//    }
 
-    /*
     NSString * userId = [GRKPicasaSingleton sharedInstance].userEmailAdress;
     NSURL* commentsFeedURL = [GDataServiceGooglePhotos photoFeedURLForUserID:userId
                                                                      albumID:nil//@"5747564028800324401"
@@ -423,11 +414,10 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
      This feed does work as expected, returns all the required fields.
      Unfortunately, there is no GDataComment or some sort of that, so the comments are not parsed.
      One would need to patch GData to add new model types and parsing.
-     
-     ~~ use GDataQuery instead of GDataQueryGooglePhotos?
-     */
-}
+} */
 
+/*
+GData expects feed to be included into album, not the raw array, the result is unparsed
 
 -(void)featuredPhotosAtPageIndex:(NSUInteger)pageOffset
        withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
@@ -449,10 +439,7 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
                                                              numberOfPhotosPerPage:numberOfPhotosPerPage];
     __block GRKPicasaQuery * featuredPhotosQuery = nil;
     GRKQueryResultBlock queryResultBlock = ^(id query, id result) {
-#warning UNPARSED, throw error?
-/*
 GDataFeedBase 0x1262b5c0: {v:2.0 entries:500 etag:W/"D0ABQX0yfyp7ImA9WhBTEUo." updated:2013-02-06T18:35:50Z links:feed,self,next id:https://photos.googleapis.com/data/feed/featured unparsed:<gphoto:crowded_length>}
-*/
         if ( ! [result isKindOfClass:[GDataFeedPhotoAlbum class]] ){
             
             if ( errorBlock != nil ){
@@ -509,6 +496,7 @@ GDataFeedBase 0x1262b5c0: {v:2.0 entries:500 etag:W/"D0ABQX0yfyp7ImA9WhBTEUo." u
     [self registerQueryAsLoading:featuredPhotosQuery];
     [featuredPhotosQuery perform];
 }
+*/
 
 
 

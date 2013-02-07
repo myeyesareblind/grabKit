@@ -221,12 +221,6 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
                 andErrorBlock:(GRKErrorBlock)errorBlock {
     
     NSAssert(false, @" the object %@ doesn't mask the method [%@ fillCoverPhotoOfAlbum:andCompleteBlock:andErrorBlock:]", self, [self class]);
-    
-}
-
-
--(void)commentsOfPhoto:(GRKPhoto *)photo withCommentsAtPageIndex:(NSUInteger)pageIndex withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock andErrorBlock:(GRKErrorBlock)errorBlock {
-    NSAssert(false, @" the object %@ doesn't mask the method [%@ %@]", self, [self class], NSStringFromSelector(_cmd));
 }
 
 
