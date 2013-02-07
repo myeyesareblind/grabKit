@@ -97,7 +97,7 @@
     if ( self ){
         
         query = _query;
-        NSLog(@"query in init : %@", query);
+//        NSLog(@"query in init : %@", query);
         
         handlingBlock = [_handlingBlock copy];
         errorBlock = [_errorBlock copy];       
@@ -134,7 +134,7 @@
     } else {
         
         
-        NSLog(@" query : %@", query);
+//        NSLog(@" query : %@", query);
         
         
         ticket = [service fetchFeedWithQuery:query 

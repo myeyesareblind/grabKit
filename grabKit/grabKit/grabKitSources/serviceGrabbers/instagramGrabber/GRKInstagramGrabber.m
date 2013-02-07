@@ -30,9 +30,15 @@
 #import "GRKAuthor.h"
 #import "GRKCommentsInternalProtocol.h"
 
+// instagram returns max 16 images of media/popular as of now, but it might change
+const NSInteger FEATURED_ALBUM_MAX_PHOTOS_COUNT = 1000;
+
+
 @interface GRKInstagramGrabber()<GRKCommentsInternalProtocol> {
-    GRKPhoto* _lastFeaturedPhoto;
 }
+
+// I use it to retrieve the last photo id to support pagination
+@property (nonatomic, readonly) GRKAlbum* featuredAlbum;
 
 -(BOOL) isResultForAlbumsInTheExpectedFormat:(id)result;
 
@@ -48,6 +54,7 @@
 
 
 @implementation GRKInstagramGrabber
+@synthesize featuredAlbum;
 
 
 -(id) init {
@@ -59,6 +66,16 @@
     return self;
 }
 
+
+-(GRKAlbum*) featuredAlbum {
+    if (!featuredAlbum) {
+        featuredAlbum = [[GRKAlbum alloc] initWithId:@"0"
+                                             andName:@"featuredPhotos"
+                                            andCount:FEATURED_ALBUM_MAX_PHOTOS_COUNT
+                                            andDates:0];
+    }
+    return featuredAlbum;
+}
 
 #pragma mark - GRKServiceGrabberConnectionProtocol methods
 
@@ -142,9 +159,9 @@
 /* @see refer to GRKServiceGrabberProtocol documentation
  */
 -(void) albumsOfCurrentUserAtPageIndex:(NSUInteger)pageIndex
-              withNumberOfAlbumsPerPage:(NSUInteger)numberOfAlbumsPerPage
-                       andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock 
-                          andErrorBlock:(GRKErrorBlock)errorBlock;
+             withNumberOfAlbumsPerPage:(NSUInteger)numberOfAlbumsPerPage
+                      andCompleteBlock:(GRKServiceGrabberCompleteBlock)completeBlock
+                         andErrorBlock:(GRKErrorBlock)errorBlock
 {
     
     if ( numberOfAlbumsPerPage > kGRKMaximumNumberOfAlbumsPerPage ) {
@@ -513,7 +530,12 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
     
     if ( pageOffset > 0 ){
         
-        if (!_lastFeaturedPhoto){
+        NSArray * photosForPreviousPage = [self.featuredAlbum photosAtPageIndex:pageOffset - 1
+                                                      withNumberOfPhotosPerPage:numberOfPhotosPerPage];
+        
+        GRKPhoto * lastAddedPhoto = [photosForPreviousPage lastObject];
+        if ( [lastAddedPhoto isKindOfClass:[NSNull class]] ){
+            
             // discontinuous grabbing error
             if ( errorBlock != nil ){
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -522,12 +544,26 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
             }
             return;
         }
-        [params setObject:_lastFeaturedPhoto.photoId forKey:@"max_id"];
+        
+        if ( lastAddedPhoto == nil ){
+            
+            // discontinuous grabbing error
+            if ( errorBlock != nil ){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    errorBlock(nil);
+                });
+            }
+            return;
+        }
+        
+        
+        [params setObject:lastAddedPhoto.photoId forKey:@"max_id"];
     }
     
     NSString * endpoint = @"media/popular";
     
     __block GRKInstagramQuery * featuredPhotosQuery = nil;
+
     GRKQueryResultBlock queryResultBlock = ^(id query, id result) {
         if ( ! [self isResultForPhotosInTheExpectedFormat:result] ){
             
@@ -555,6 +591,10 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
                 [newPhotos addObject:photo];
             }
         }
+        
+        [self.featuredAlbum addPhotos:newPhotos
+                         forPageIndex:pageOffset
+            withNumberOfPhotosPerPage:numberOfPhotosPerPage];
         
         if ( completeBlock != nil ){
             dispatch_async(dispatch_get_main_queue(), ^{

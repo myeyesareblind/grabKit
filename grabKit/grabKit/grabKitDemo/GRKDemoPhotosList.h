@@ -39,11 +39,16 @@ enum {
 };
 typedef NSUInteger GRKDemoPhotosListState;
 
+
+extern NSUInteger kNumberOfRowsPerSection;
+extern NSUInteger kNumberOfPhotosPerCell;
+extern NSUInteger kNumberOfPhotosPerPage;
+
+
 @interface GRKDemoPhotosList : UITableViewController {
 
     GRKServiceGrabber * _grabber;
     GRKAlbum * _album;
-    BOOL       _grabFeaturedFeed;
     
     GRKDemoPhotosListState state;
     
@@ -58,8 +63,8 @@ typedef NSUInteger GRKDemoPhotosListState;
              andAlbum:(GRKAlbum*)album;
 
 
--(id) initForFeaturedFeedWithNibName:(NSString*)nibNameOrNil
-                              bundle:(NSString*)bundle
-                          andGrabber:(GRKServiceGrabber*)grabber;
+-(NSArray*) photosForCellAtIndexPath:(NSIndexPath*)indexPath;
+-(void) fillAlbumWithMorePhotos;
+-(void) setState:(GRKDemoPhotosListState)newState;
 
 @end

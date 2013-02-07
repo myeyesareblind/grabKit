@@ -25,6 +25,8 @@
 #import "GRKServiceGrabberConnectionProtocol.h"
 #import "GRKDemoPhotosList.h"
 #import "GRKDemoAlbumsListCell.h"
+#import "GRKServiceFeaturedPhotosGrabberProtocol.h"
+#import "GRKDemoFeaturedPhotosList.h"
 
 @interface GRKDemoAlbumsList()
     -(void)grabMoreAlbums;
@@ -65,9 +67,9 @@ NSUInteger kNumberOfAlbumsPerPage = 8;
         _albums = [[NSMutableArray alloc] init];
         _lastLoadedPageIndex = 0;
         allAlbumsGrabbed = NO;
+        _includeFeaturedGrab = [grabber conformsToProtocol:@protocol(GRKServiceFeaturedPhotosGrabberProtocol)];
         [self setState:GRKDemoAlbumsListStateInitial];
     }
-    
     
     return self;
 }
@@ -92,8 +94,6 @@ NSUInteger kNumberOfAlbumsPerPage = 8;
         default:
             break;
     }
-    
-    
 }
 
 
@@ -230,8 +230,10 @@ NSUInteger kNumberOfAlbumsPerPage = 8;
     // If all albums have been grabbed, show an extra cell for "N Albums"
     if ( state == GRKDemoAlbumsListStateAllAlbumsGrabbed ) res++;
     
-    /// additional item for featured photos
-    res ++;
+    // featured photos inserted at index 0
+    if (_includeFeaturedGrab) {
+        res ++;
+    }
     
     return res;
 }
@@ -240,21 +242,25 @@ NSUInteger kNumberOfAlbumsPerPage = 8;
 {
     
     UITableViewCell *cell = nil;
-    NSInteger row         = indexPath.row;
+    NSInteger        row  = indexPath.row;
+    
+    BOOL  isFeaturedCell  = row == 0 && _includeFeaturedGrab;
+    BOOL  isExtraCell     = row >= ([_albums count] + _includeFeaturedGrab);
+    
     // Handle the extra cell
-    if ( (row >= [_albums count] + 1) || row == 0 ){
-        
+    if ( isFeaturedCell || isExtraCell){
+
         static NSString *CellIdentifier = @"ExtraCell";
-        
+    
         cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
         if (cell == nil) {
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         }
         
-        if (row == 0) {
-            cell.textLabel.text = @"Featured feed";
-            cell.textLabel.font = [UIFont fontWithName:@"System" size:8];
-        }else {
+        if (isFeaturedCell) {
+            cell.textLabel.text = @"Featured photos";
+        }
+        else {
             if ( ! allAlbumsGrabbed ){
                 cell.textLabel.text = [NSString stringWithFormat:@"%d Albums - Load More", [_albums count]];
                 cell.textLabel.font = [UIFont fontWithName:@"System" size:8];
@@ -265,6 +271,9 @@ NSUInteger kNumberOfAlbumsPerPage = 8;
         }
         
     }else {
+        if (_includeFeaturedGrab) {
+            row --;
+        }
         
         static NSString *CellIdentifier = @"AlbumCell";
         
@@ -274,15 +283,14 @@ NSUInteger kNumberOfAlbumsPerPage = 8;
             cell = [[[NSBundle mainBundle] loadNibNamed:@"GRKDemoAlbumsListCell" owner:nil options:nil] objectAtIndex:0];
         }
         
-        GRKAlbum * albumAtIndexPath = (GRKAlbum*)[_albums objectAtIndex:indexPath.row - 1];
-        
+        GRKAlbum * albumAtIndexPath = (GRKAlbum*)[_albums objectAtIndex:row];
         
         [(GRKDemoAlbumsListCell*)cell setAlbum:albumAtIndexPath];
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-        
+
         
     }
-    
+
     
     return cell;
 }
@@ -293,31 +301,35 @@ NSUInteger kNumberOfAlbumsPerPage = 8;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [[tableView cellForRowAtIndexPath:indexPath] setSelected:NO];
-    NSInteger row = indexPath.row;
+
+    NSInteger        row  = indexPath.row;
     
-    if (!row) {
-        GRKDemoPhotosList* photoList = [[GRKDemoPhotosList alloc] initForFeaturedFeedWithNibName:@"GRKDemoPhotosList"
-                                                                                          bundle:nil
-                                                                                      andGrabber:_grabber];
-        [self.navigationController pushViewController:photoList animated:YES];
-        
-        return ;
+    BOOL  isFeaturedCell  = row == 0 && _includeFeaturedGrab;
+    BOOL  isExtraCell     = row >= ([_albums count] + _includeFeaturedGrab);
+    if (isFeaturedCell) {
+        GRKDemoFeaturedPhotosList* featuredList = [[GRKDemoFeaturedPhotosList alloc] initWithNibName:@"GRKDemoPhotosList"
+                                                                                              bundle:nil
+                                                                                          andGrabber:_grabber];
+        [self.navigationController pushViewController:featuredList animated:YES];
     }
-    
-    row --;
-    // If the user touched the "load more" cell, and if there are still more albums to load
-    if ( row == [_albums count]  && ! allAlbumsGrabbed ){
-        [self grabMoreAlbums];
-    }else if ( row <= [_albums count] -1 ) {
+    else if (isExtraCell) {
+        if (!allAlbumsGrabbed) {
+            [self grabMoreAlbums];
+        }
+    }
+    else { /// album cell
+        if (_includeFeaturedGrab) {
+            row --;
+        }
         
-        GRKAlbum * albumAtIndexPath = [_albums objectAtIndex:indexPath.row];
+        GRKAlbum * albumAtIndexPath = [_albums objectAtIndex:row];
         
-        GRKDemoPhotosList * photosList = [[GRKDemoPhotosList alloc] initWithNibName:@"GRKDemoPhotosList" bundle:nil andGrabber:_grabber andAlbum:albumAtIndexPath];
+        GRKDemoPhotosList * photosList = [[GRKDemoPhotosList alloc] initWithNibName:@"GRKDemoPhotosList"
+                                                                             bundle:nil
+                                                                         andGrabber:_grabber
+                                                                           andAlbum:albumAtIndexPath];
         [self.navigationController pushViewController:photosList animated:YES];
-
-        
     }
-
 }
 
 #pragma mark - UIAlertView delegate

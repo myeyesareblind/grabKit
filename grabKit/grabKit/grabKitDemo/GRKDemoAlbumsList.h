@@ -50,6 +50,8 @@ typedef NSUInteger GRKDemoAlbumsListState;
     BOOL allAlbumsGrabbed;            // Set at YES if all albums have been loaded
     
     GRKDemoAlbumsListState state; // state of the controller
+    
+    BOOL            _includeFeaturedGrab;
 }
 
 

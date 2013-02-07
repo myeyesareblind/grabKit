@@ -56,6 +56,8 @@
 #import "GRKServiceQueryProtocol.h"
 
 #import "GRKServiceGrabber.h"
+#import "GRKServiceFeaturedPhotosGrabberProtocol.h"
+#import "GRKServiceCommentsGrabberProtocol.h"
 
 //   Device
 #import "GRKDeviceGrabber.h"
