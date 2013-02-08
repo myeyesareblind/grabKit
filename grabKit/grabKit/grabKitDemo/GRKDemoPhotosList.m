@@ -266,7 +266,7 @@ withNumberOfPhotosPerPage:kNumberOfPhotosPerPage
         NSUInteger photosCount = [_album count];
         
         // Number of cells with kNumberOfPhotosPerCell photos 
-        NSUInteger numberOfCompleteCell = (photosCount - section*kNumberOfRowsPerSection*kNumberOfPhotosPerCell) / kNumberOfPhotosPerCell;
+        NSUInteger numberOfCompleteCell = photosCount / kNumberOfPhotosPerCell;
         
         // The last cell can contain less than kNumberOfPhotosPerCell photos
         NSUInteger thereIsALastCellWithLessThenFourPhotos = (photosCount % kNumberOfPhotosPerCell)?1:0;

@@ -54,7 +54,7 @@ const NSInteger FEATURED_ALBUM_MAX_PHOTOS_COUNT = 1000;
 
 
 @implementation GRKInstagramGrabber
-@synthesize featuredAlbum;
+@synthesize featuredAlbum = _featuredAlbum;
 
 
 -(id) init {
@@ -68,13 +68,13 @@ const NSInteger FEATURED_ALBUM_MAX_PHOTOS_COUNT = 1000;
 
 
 -(GRKAlbum*) featuredAlbum {
-    if (!featuredAlbum) {
-        featuredAlbum = [[GRKAlbum alloc] initWithId:@"0"
-                                             andName:@"featuredPhotos"
-                                            andCount:FEATURED_ALBUM_MAX_PHOTOS_COUNT
-                                            andDates:0];
+    if (!_featuredAlbum) {
+        _featuredAlbum = [[GRKAlbum alloc] initWithId:@"0"
+                                              andName:@"featuredPhotos"
+                                             andCount:FEATURED_ALBUM_MAX_PHOTOS_COUNT
+                                             andDates:0];
     }
-    return featuredAlbum;
+    return _featuredAlbum;
 }
 
 #pragma mark - GRKServiceGrabberConnectionProtocol methods
@@ -563,6 +563,7 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
     NSString * endpoint = @"media/popular";
     
     __block GRKInstagramQuery * featuredPhotosQuery = nil;
+    __weak  GRKAlbum* featuredAlbum = self.featuredAlbum;
 
     GRKQueryResultBlock queryResultBlock = ^(id query, id result) {
         if ( ! [self isResultForPhotosInTheExpectedFormat:result] ){
@@ -592,9 +593,9 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
             }
         }
         
-        [self.featuredAlbum addPhotos:newPhotos
-                         forPageIndex:pageOffset
-            withNumberOfPhotosPerPage:numberOfPhotosPerPage];
+        [featuredAlbum addPhotos:newPhotos
+                    forPageIndex:pageOffset
+       withNumberOfPhotosPerPage:numberOfPhotosPerPage];
         
         if ( completeBlock != nil ){
             dispatch_async(dispatch_get_main_queue(), ^{
