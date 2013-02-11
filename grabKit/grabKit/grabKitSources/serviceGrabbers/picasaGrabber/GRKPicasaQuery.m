@@ -154,7 +154,7 @@
     } else if (handlingBlock != nil) {
         
         
-        NSLog(@" query : %@", query);
+        //NSLog(@" query : %@", query);
         
         
         handlingBlock(self, feed);

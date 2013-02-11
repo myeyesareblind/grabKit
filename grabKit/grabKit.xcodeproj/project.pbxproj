@@ -99,8 +99,8 @@
 		5F8CB3D515C5346500393EE5 /* flickr.png in Resources */ = {isa = PBXBuildFile; fileRef = 5F8CB3D115C5346500393EE5 /* flickr.png */; };
 		5F8CB3D615C5346500393EE5 /* instagram.png in Resources */ = {isa = PBXBuildFile; fileRef = 5F8CB3D215C5346500393EE5 /* instagram.png */; };
 		5F8CB3D715C5346500393EE5 /* picasa.png in Resources */ = {isa = PBXBuildFile; fileRef = 5F8CB3D315C5346500393EE5 /* picasa.png */; };
-		5F8E24AA16A7F8660090F93B /* Accounts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F8E24A816A7F8660090F93B /* Accounts.framework */; };
-		5F8E24AB16A7F8660090F93B /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F8E24A916A7F8660090F93B /* AdSupport.framework */; };
+		5F8E24AA16A7F8660090F93B /* Accounts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F8E24A816A7F8660090F93B /* Accounts.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		5F8E24AB16A7F8660090F93B /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F8E24A916A7F8660090F93B /* AdSupport.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		5FA4911415C3C3540000DADB /* GrabKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 5FA4911315C3C3540000DADB /* GrabKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5FB134E516AAA3CB00BE500B /* LFHTTPRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 5FB1344E16AAA3CA00BE500B /* LFHTTPRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5FB134E616AAA3CB00BE500B /* LFHTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FB1344F16AAA3CA00BE500B /* LFHTTPRequest.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
@@ -1864,7 +1864,7 @@
 		5F3C2B4115B9F7FC008D894A /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0460;
 			};
 			buildConfigurationList = 5F3C2B4415B9F7FC008D894A /* Build configuration list for PBXProject "grabKit" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -2314,6 +2314,10 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -2327,6 +2331,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2341,12 +2346,17 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2449,7 +2459,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos5.0;
+				SDKROOT = iphoneos;
 				WRAPPER_EXTENSION = bundle;
 			};
 			name = Debug;
@@ -2470,7 +2480,7 @@
 				INFOPLIST_FILE = "GrabKitBundle/GrabKitBundle-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos5.0;
+				SDKROOT = iphoneos;
 				WRAPPER_EXTENSION = bundle;
 			};
 			name = Release;

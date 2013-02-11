@@ -66,6 +66,8 @@ static NSString * expirationDateKey = @"ExpirationDateKey";
         [[GRKConnectorsDispatcher sharedInstance] registerServiceConnectorAsConnecting:self];
             
         
+            connectionIsCompleteBlock = completeBlock;
+        
             [FBSession setDefaultAppID:[GRKCONFIG facebookAppId]];
             NSArray *permissions = [NSArray arrayWithObjects:@"user_photos", @"user_photo_video_tags", nil];
         
@@ -76,7 +78,12 @@ static NSString * expirationDateKey = @"ExpirationDateKey";
                                           if (FB_ISSESSIONOPENWITHSTATE(status)) {
                                               
                                               [GRKFacebookSingleton sharedInstance].facebookSession = session;
-                                              completeBlock(YES);
+                                              
+                                              dispatch_async(dispatch_get_main_queue(), ^{
+                                                    connectionIsCompleteBlock(YES);
+                                                    connectionIsCompleteBlock = nil;
+                                              });
+                                              
                                               
                                           }else if (error) {
                                               
@@ -84,29 +91,11 @@ static NSString * expirationDateKey = @"ExpirationDateKey";
                                               
                                           }
                                       }];
-        /*
-            [FBSession sessionOpenWithPermissions:permissions
-                                    completionHandler:^(FBSession *session, FBSessionState status, NSError *error) {
-
-                    if (FB_ISSESSIONOPENWITHSTATE(status)) {
-
-                        [GRKFacebookSingleton sharedInstance].facebookSession = session;
-                        completeBlock(YES);
-                        
-                    }else if (error) {
-         
-                        errorBlock(error);
-         
-                    }
-         }];
-         */
-        
-
+      
         
     } else  {
         
         // session is supposed to be valid. let's test a simple query to check that, for example, the user removed the application on his settings on Facebook.
-        
     
         GRKFacebookQuery * query = nil;
         query = [GRKFacebookQuery queryWithGraphPath:@"me" 
@@ -173,14 +162,71 @@ static NSString * expirationDateKey = @"ExpirationDateKey";
  */
 -(void) isConnected:(GRKGrabberConnectionIsCompleteBlock)connectedBlock;
 {
-   
     
     FBSession * session = [GRKFacebookSingleton sharedInstance].facebookSession;
-    BOOL connected = (session.state == FBSessionStateCreatedTokenLoaded) 
-                || (session.state == FBSessionStateOpen)
-                || (session.state == FBSessionStateOpenTokenExtended);
+    BOOL connected = (session.state == FBSessionStateCreatedTokenLoaded)
+    || (session.state == FBSessionStateOpen)
+    || (session.state == FBSessionStateOpenTokenExtended);
     
-    connectedBlock( connected );
+    
+    if ( ! connected ){
+    
+        dispatch_async(dispatch_get_main_queue(), ^{
+            connectedBlock( connected );
+        });
+        
+        return;
+    }
+    
+    // let's test the connection. The user may have revoked the access to the application from his facebook account,
+    // or may have changed his password, thus invalidating the session
+    
+    GRKFacebookQuery * query = nil;
+    query = [GRKFacebookQuery queryWithGraphPath:@"me?fields=timezone" // let's ask for a tiny bit of data ...
+                                      withParams:nil
+                               withHandlingBlock:^(GRKFacebookQuery *query, id result) {
+                                   
+                                   if (connectedBlock != nil ){
+                                       connectedBlock(YES);
+                                   }
+                                   
+                                   [_queries removeObject:query];
+                                   
+                               } andErrorBlock:^(NSError *error) {
+                                   
+                                   // if we got an error trying to make a basic query,
+                                   //  but as the session is supposed to be valid,
+                                   // Then the user may have removed the application on Facebook.
+                                   
+                                   // then, remove the store data about the session
+                                   [GRKTokenStore removeTokenWithName:accessTokenKey forGrabberType:grabberType];
+                                   [GRKTokenStore removeTokenWithName:expirationDateKey forGrabberType:grabberType];
+                                   
+                                   // and retry to connect
+                                   if (connectedBlock != nil ){
+                                       connectedBlock(NO);
+                                   }
+                                   [_queries removeObject:query];
+                                   
+                               }];
+    
+    [_queries addObject:query];
+    [query perform];
+
+    
+    
+}
+
+/*  @see refer to GRKServiceConnectorProtocol documentation
+ */
+-(void) didNotCompleteConnection;{
+   
+    if ( connectionIsCompleteBlock != nil ){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            connectionIsCompleteBlock(NO);
+            connectionIsCompleteBlock = nil;
+        });
+    }
     
 }
 

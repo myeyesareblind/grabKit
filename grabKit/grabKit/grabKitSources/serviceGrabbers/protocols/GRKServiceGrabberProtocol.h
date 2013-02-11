@@ -161,7 +161,8 @@ withNumberOfPhotosPerPage:(NSUInteger)numberOfPhotosPerPage
 
 /** Asks the grabber to retrieve the cover of a GRKAlbum. The cover of an album is an instance of GRKPhoto.
  The cover can be a specific photo or the first photo of the album, according to the service.
-
+ Basically, this method must call [self fillCoverPhotoOfAlbums:withCompleteBlock:andErrorBlock], giving a NSArray containing the given album as first parameter
+ 
  @param album GRKAlbum object to fill the cover of
  @param completeBlock a GRKServiceGrabberCompleteBlock  performed once the cover is retrieved. the GRKPhoto result is given to that block
  @param errorBlock a GRKErrorBlock  performed if an error occured 
