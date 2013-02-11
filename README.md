@@ -39,3 +39,5 @@ Also a new model class is added:
 @interface GRKAuthor
 @property (nonatomic, strong, readwrite) NSString* authorId;
 @property (nonatomic, strong, readwrite) NSString* name;
+
+The featured photos feed was added to the demo application.
