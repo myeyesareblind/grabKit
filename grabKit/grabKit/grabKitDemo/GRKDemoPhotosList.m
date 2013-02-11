@@ -304,9 +304,6 @@ withNumberOfPhotosPerPage:kNumberOfPhotosPerPage
         
         cell.textLabel.text = @"load more";
         cell.textLabel.font = [UIFont fontWithName:@"System" size:8];
-        
-
-        
     } else {
         
         static NSString *photoCellIdentifier = @"photoCell";
@@ -316,12 +313,9 @@ withNumberOfPhotosPerPage:kNumberOfPhotosPerPage
             
             cell = [[[NSBundle mainBundle] loadNibNamed:@"GRKDemoPhotosListCell" owner:self options:nil] objectAtIndex:0];
         }
-
-    
     }    
     
     // setting of the cell is done in method [tableView:willDisplayCell:forRowAtIndexPath:]
-    
     return cell;
 }
 

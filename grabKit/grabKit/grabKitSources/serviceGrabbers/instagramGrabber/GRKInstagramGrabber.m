@@ -491,13 +491,18 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
             [actualComments addObject:comment];
         }
         [self unregisterQueryAsLoading:query];
+        allCommentsQuery = nil;
         dispatch_async(dispatch_get_main_queue(), ^{
             completeBlock(actualComments);
         });
     };
     
     GRKErrorBlock queryErrorBlock = ^(NSError* error) {
-        errorBlock(error);
+        if (errorBlock) {
+            errorBlock(error);
+        }
+        [self unregisterQueryAsLoading:allCommentsQuery];
+        allCommentsQuery = nil;
     };
     
 
@@ -562,8 +567,8 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
     
     NSString * endpoint = @"media/popular";
     
-    __block GRKInstagramQuery * featuredPhotosQuery = nil;
-    __weak  GRKAlbum* featuredAlbum = self.featuredAlbum;
+    __block GRKInstagramQuery* featuredPhotosQuery = nil;
+    __weak  GRKAlbum*          featuredAlbum       = self.featuredAlbum;
 
     GRKQueryResultBlock queryResultBlock = ^(id query, id result) {
         if ( ! [self isResultForPhotosInTheExpectedFormat:result] ){
@@ -621,7 +626,8 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
 
     featuredPhotosQuery = [GRKInstagramQuery queryWithEndpoint:endpoint
                                                     withParams:params
-                                             withHandlingBlock:queryResultBlock                                                 andErrorBlock:queryErrorBlock];
+                                             withHandlingBlock:queryResultBlock
+                                                 andErrorBlock:queryErrorBlock];
     
     [self registerQueryAsLoading:featuredPhotosQuery];
     [featuredPhotosQuery perform];

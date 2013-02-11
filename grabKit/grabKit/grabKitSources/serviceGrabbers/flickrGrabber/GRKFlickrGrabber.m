@@ -529,7 +529,7 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
     
     ///photo_id
     NSString* endpoint = @"flickr.photos.comments.getList";
-    
+    __block GRKFlickrQuery* allCommentsQuery = nil;
     
     GRKQueryResultBlock queryCompleteBlock = ^(id query, id result) {
         
@@ -586,9 +586,10 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
         dispatch_async(dispatch_get_main_queue(), ^{
             errorBlock(error);
         });
+        [self unregisterQueryAsLoading:allCommentsQuery];
+        allCommentsQuery = nil;
     };
     
-    __block GRKFlickrQuery* allCommentsQuery = nil;
     allCommentsQuery = [GRKFlickrQuery queryWithMethod:endpoint
                                              andParams:[@{
                                                         @"photo_id":photo.photoId
