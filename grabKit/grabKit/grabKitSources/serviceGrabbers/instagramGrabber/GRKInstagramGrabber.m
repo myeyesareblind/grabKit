@@ -462,7 +462,6 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
         }
         /// no paging api provided, grab all comments and trim them
         NSArray*        rawComments     = [(NSDictionary*) result objectForKey:@"data"];
-#warning consider adding Caption to the comments as it looks like 1st comment
         
         NSUInteger      maxCommenetsIndex        = rawComments.count ? rawComments.count - 1: 0;
         NSUInteger      locationIndex   = pageIndex * numberOfCommentsPerPage;
@@ -487,8 +486,10 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
         
         NSMutableArray* actualComments  = [NSMutableArray new];
         for (NSDictionary* rawComment in requestedComments){
-            GRKComment* comment = [self commentWithRawComment:rawComment];
-            [actualComments addObject:comment];
+            @autoreleasepool {
+                GRKComment* comment = [self commentWithRawComment:rawComment];
+                [actualComments addObject:comment];
+            }
         }
         [self unregisterQueryAsLoading:query];
         allCommentsQuery = nil;

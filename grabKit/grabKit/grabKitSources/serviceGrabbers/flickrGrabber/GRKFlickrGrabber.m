@@ -573,8 +573,10 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
         
         NSMutableArray* actualComments  = [NSMutableArray new];
         for (NSDictionary* rawComment in requestedComments){
-            GRKComment* comment = [self commentWithRawComment:rawComment];
-            [actualComments addObject:comment];
+            @autoreleasepool {
+                GRKComment* comment = [self commentWithRawComment:rawComment];
+                [actualComments addObject:comment];
+            }
         }
         [self unregisterQueryAsLoading:query];
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -644,7 +646,6 @@ withNumberOfCommentsPerPage:(NSUInteger)numberOfCommentsPerPage
         
         
         for( NSDictionary * rawPhoto in rawPhotos ){
-#warning does it make sense to use autoreleasepool here? nothing will be drained
             @autoreleasepool {
                 GRKPhoto * photo = [self photoWithRawPhotoFromPhotosetsGetPhotos:rawPhoto];
                 [newPhotos addObject:photo];
